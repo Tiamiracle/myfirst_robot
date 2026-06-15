@@ -1,4 +1,4 @@
-详细的说明请浏览：[ubuntu24.04+ROS jazzy+Nav2+Gazebo+Rviz 环境下绘制地图](https://woxv87oohl.feishu.cn/docx/LODPdEpSFoIIPvxpZ1acUC5Oneu)
+详细的说明请浏览：[ubuntu24.04+ROS jazzy+Nav2+Gazebo+Rviz 环境下绘制地图](https://zhuanlan.zhihu.com/p/2049606748001006848)
 
 # ubuntu24\.04\+ROS jazzy\+Nav2\+Gazebo\+Rviz 环境下绘制地图
 
