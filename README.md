@@ -1,5 +1,3 @@
-详细的说明请浏览：[ubuntu24.04+ROS jazzy+Nav2+Gazebo+Rviz 环境下绘制地图](https://zhuanlan.zhihu.com/p/2049606748001006848)
-
 # ubuntu24\.04\+ROS jazzy\+Nav2\+Gazebo\+Rviz 环境下绘制地图
 
 # 环境说明及安装
@@ -14,7 +12,7 @@
 
 3、采用windows下以wsl形式安装，安装方式如下：
 
-![Image](https://internal-api-drive-stream.feishu.cn/space/api/box/stream/download/authcode/?code=OTk4YmI3ZTk0MjkxYTNiZDljNWU1YWE1NjIxM2FmOThfOTdhNDA1OGY5NDk3ZTYzZDhmMGI0N2JkMGUyZWUwOWFfSUQ6NzY1MDg3NTg3NjU2ODk5Mjk4NV8xNzgxNDQ0MjgzOjE3ODE1MzA2ODNfVjM)
+![Image](https://internal-api-drive-stream.feishu.cn/space/api/box/stream/download/authcode/?code=NzE4MzMwNWU4MWU5Zjk0NDI3M2FmZmI2MjllMDVhMTRfNTVjMWVlY2I2OTRiMTNmNTk2MDYyNTQxMGI0ZDRlMjdfSUQ6NzY1MDg3NTg3NjU2ODk5Mjk4NV8xNzgxNjE1NTQ5OjE3ODE3MDE5NDlfVjM)
 
 ## ROS2环境
 
@@ -22,7 +20,7 @@
 
 ros2有多个版本，而且版本差异比较大，各版本命令会有差异，所以此项目中我们推荐jazzy版本，这个版本也是和ubuntu24\.04官方最推荐的版本
 
-![Image](https://internal-api-drive-stream.feishu.cn/space/api/box/stream/download/authcode/?code=NjY4ZDg2NzlhNWYzMGE1OGUyNGMzZDEzMTE1ZDc4MjRfOTYyMDkxMzRhNDFkYzllZjA4YjUzMzAyMDg3NWNmMjJfSUQ6NzY1MDg3NzYxNTc1ODExNzgyNl8xNzgxNDQ0MjgzOjE3ODE1MzA2ODNfVjM)
+![Image](https://internal-api-drive-stream.feishu.cn/space/api/box/stream/download/authcode/?code=ZTE4OTE5N2EyNWRhN2NmMDA0OWEzNGUwZDUzZDcwYWRfN2EyYmJhNDQ5ZGU5MzBlN2E4NjUxYjYwODEwYTFjZjhfSUQ6NzY1MDg3NzYxNTc1ODExNzgyNl8xNzgxNjE1NTQ5OjE3ODE3MDE5NDlfVjM)
 
 ### ros2的安装方式
 
@@ -46,13 +44,13 @@ sudo apt autoremove
 
 如上面ros2 安装了desktop\-full版本，则系统会自动安装gazebo，在ubuntu 命令窗口下输入：gz sim 可以看到gazebo的界面，这一版本和gazebo前期的版本差异很大，使用ros2中的使用命令也发生了变化，大家在查找资料的时候注意版本。
 
-![Image](https://internal-api-drive-stream.feishu.cn/space/api/box/stream/download/authcode/?code=ZDFiY2FkYjZjZDVjMWJiYTViOTdmY2ZjZjRlNTIwMDlfNzFiMTE2MDFjMDhhODY0MTgyMjhhODY2NzFmOTgxZmVfSUQ6NzY1MDg4MTU4NzIxMDYxOTg3Ml8xNzgxNDQ0MjgzOjE3ODE1MzA2ODNfVjM)
+![Image](https://internal-api-drive-stream.feishu.cn/space/api/box/stream/download/authcode/?code=MmIwZTUwZTJjYjhiMmQ0OWU2ZmZjOWY5YjUxNTJkYmVfNjZjOWQzZjgxZDc4ZDYyYmZiNWZjMTc4MDA4MGM0NjlfSUQ6NzY1MDg4MTU4NzIxMDYxOTg3Ml8xNzgxNjE1NTQ5OjE3ODE3MDE5NDlfVjM)
 
 ## rviz介绍
 
 RViz（Robot Visualization） 是 ROS / ROS 2 中最核心的 3D 可视化工具，作用是把抽象的机器人数据变成你能"看见"的东西——传感器数据、机器人模型、路径规划、地图等，全部在一个三维窗口里实时展示。
 
-![Image](https://internal-api-drive-stream.feishu.cn/space/api/box/stream/download/authcode/?code=NjE3YTM1YjJhM2FlNTQ2ZTMxMWQ5NjQzNGQyNGQ0ZDNfNmVhNWM1YTdmYzIxMzJhMGNmOGU4YWE3ZTRiOWI5YzRfSUQ6NzY1MTIwMTE4MDQ1MDAxNjIxN18xNzgxNDQ0MjgzOjE3ODE1MzA2ODNfVjM)
+![Image](https://internal-api-drive-stream.feishu.cn/space/api/box/stream/download/authcode/?code=N2E2YzM0ZGM2ZDY1OWE5OGE1YWZiMDBkNzc4MDYzM2FfZmFkZjBiNDFlYzgwNTc4MjVjZDNlMzM2ODU3OTMzNmNfSUQ6NzY1MTIwMTE4MDQ1MDAxNjIxN18xNzgxNjE1NTQ5OjE3ODE3MDE5NDlfVjM)
 
 ## Nav2介绍
 
@@ -104,7 +102,7 @@ c、计算小车行走路径，保存地图
 
 小车的模型有两种方式编写。一种是ros2中对机器人模型通过urdf文件格式进行了规范及定义。另外一种是在gazebo中通过sdf文件格式对机器人也进行了格式规范定义。
 
-![Image](https://internal-api-drive-stream.feishu.cn/space/api/box/stream/download/authcode/?code=NmVhZjU2OTVhNDk5NDk5ODliMDQwZDQxMWRjYmQzZmJfOGRlMmJmY2QzNjU5YTYzNDU0NGQ4MjAyNTc2NjgyYzhfSUQ6NzY1MDg4ODIzMTUzNDk4ODI2Nl8xNzgxNDQ0MjgzOjE3ODE1MzA2ODNfVjM)
+![Image](https://internal-api-drive-stream.feishu.cn/space/api/box/stream/download/authcode/?code=ZmI0NDVkYjhiNTRkNTE0YjI1OTgyNGVlY2M2MGQwMjRfZTQ0OTAyM2Y0YjBiYzIwNGFhNDFkN2YyMjI0MGE0OTFfSUQ6NzY1MDg4ODIzMTUzNDk4ODI2Nl8xNzgxNjE1NTQ5OjE3ODE3MDE5NDlfVjM)
 
 这两种模型文件都可以用来描述机器人模型，在gazebo进行仿真时，系统需要将urdf转换成sdf文件在gazebo中展示，所以，在本项目中，我直接采用sdf文件格式来描述小车，内容如下：
 
@@ -962,7 +960,7 @@ c、计算小车行走路径，保存地图
 
 在nav2安装后，可以通过ros2 launch nav2\_bringup tb3\_simulation\_launch\.py headless:=False命令来查看演示的小车导航程序。
 
-![Image](https://internal-api-drive-stream.feishu.cn/space/api/box/stream/download/authcode/?code=ZTAyY2JmM2NkZGMzZTk4ZjYyNDViMDkzYTA4NGVlZTNfZGYzMTUzMjk0MWEzOWQwNTljYWQ0YjY4OWFlYzFmYjhfSUQ6NzY1MTIyMzU2NzQ0ODI4MDI0NV8xNzgxNDQ0MjgzOjE3ODE1MzA2ODNfVjM)
+![Image](https://internal-api-drive-stream.feishu.cn/space/api/box/stream/download/authcode/?code=MzAzYWIxZDZmZGI0YmJhNzUwOGM4ZTMyZGJjNTA3MDlfOTlhOWZlOTg2MWZhMGE2ZmEwYWNiNGJkYTdlZDE5OThfSUQ6NzY1MTIyMzU2NzQ0ODI4MDI0NV8xNzgxNjE1NTQ5OjE3ODE3MDE5NDlfVjM)
 
 如果上图可以正常显示，说明nav2安装时成功的。
 
@@ -1193,11 +1191,7 @@ free_thresh: 0.196               #像素值 ≤ 0.196 → 判定为空闲区域
 
 my\_map\.pgm内容如下：
 
-![Image](https://internal-api-drive-stream.feishu.cn/space/api/box/stream/download/authcode/?code=ZDI4MzZkMGI3MjkzZTY3MzdmODUwOWE1ZDM5NjUwZmVfMmFkNGE2NDQ0NGIwMTk0ZWZlZWI1NGU2YmQ4NDk0MzNfSUQ6NzY1MTIzMDczMjIyODA4NzAwNV8xNzgxNDQ0MjgzOjE3ODE1MzA2ODNfVjM)
-
-
-
-
+![Image](https://internal-api-drive-stream.feishu.cn/space/api/box/stream/download/authcode/?code=ZWJiZDhiZWJmOWZiZWUzMDZjNGQ0ZTA3NjgwYTQyMWNfMTQ2YWQ5ZGRjZTkzOTJiNjgzYWZlNTkxNDdjZDQzODlfSUQ6NzY1MTIzMDczMjIyODA4NzAwNV8xNzgxNjE1NTQ5OjE3ODE3MDE5NDlfVjM)
 
 
 
