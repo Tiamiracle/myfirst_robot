@@ -1,0 +1,192 @@
+<?xml version="1.0"?>
+<robot name="vehicle_blue">
+
+  <link name="base_footprint">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <mass value="0.001" />
+      <inertia ixx="0.000001" ixy="0" ixz="0" iyy="0.000001" iyz="0" izz="0.000001" />
+    </inertial>
+  </link>
+
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.667 0.333 0.167" />
+      </geometry>
+      <material>
+        <color rgba="0.00000392 0.00000392 1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0.05" rpy="0 0 0" />
+      <geometry>
+        <box size="0.667 0.333 0.167" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <mass value="1.14395" />
+      <inertia ixx="0.095329" ixy="0" ixz="0" iyy="0.381317" iyz="0" izz="0.476646" />
+    </inertial>
+  </link>
+
+  <link name="left_wheel">
+    <visual>
+      <origin xyz="0 0 0" rpy="1.5707963 0 0" />
+      <geometry>
+        <cylinder radius="0.133" length="0.067" />
+      </geometry>
+      <material>
+        <color rgba="1 0.00000392 0.00000392 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="1.5707963 0 0" />
+      <geometry>
+        <cylinder radius="0.133" length="0.067" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <mass value="1" />
+      <inertia ixx="0.043333" ixy="0" ixz="0" iyy="0.08" iyz="0" izz="0.043333" />
+    </inertial>
+  </link>
+
+  <link name="right_wheel">
+    <visual>
+      <origin xyz="0 0 0" rpy="1.5707963 0 0" />
+      <geometry>
+        <cylinder radius="0.133" length="0.067" />
+      </geometry>
+      <material>
+        <color rgba="1 0.00000392 0.00000392 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="1.5707963 0 0" />
+      <geometry>
+        <cylinder radius="0.133" length="0.067" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <mass value="1" />
+      <inertia ixx="0.043333" ixy="0" ixz="0" iyy="0.08" iyz="0" izz="0.043333" />
+    </inertial>
+  </link>
+
+  <link name="caster_wheel">
+    <visual>
+      <origin xyz="0 0 0" rpy="1.5707963 0 0" />
+      <geometry>
+        <cylinder radius="0.13" length="0.01" />
+      </geometry>
+      <material>
+        <color rgba="0.50196471 0.50196471 0.50196471 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="1.5707963 0 0" />
+      <geometry>
+        <cylinder radius="0.13" length="0.01" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <mass value="0.1" />
+      <inertia ixx="0.00008" ixy="0" ixz="0" iyy="0.00008" iyz="0" izz="0.00008" />
+    </inertial>
+  </link>
+
+  <link name="laser_cylinder_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <cylinder radius="0.01" length="0.3" />
+      </geometry>
+      <material>
+        <color rgba="0 0 0 0.8"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0.05" rpy="0 0 0" />
+      <geometry>
+        <cylinder radius="0.01" length="0.05" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <mass value="0.01" />
+      <inertia ixx="0.043333" ixy="0" ixz="0" iyy="0.08" iyz="0" izz="0.043333" />
+    </inertial>
+  </link>
+
+  <link name="laser_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <cylinder radius="0.02" length="0.05" />
+      </geometry>
+      <material>
+        <color rgba="0 0 0 0.8"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <cylinder radius="0.02" length="0.02" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <mass value="0.03" />
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0" />
+    </inertial>
+  </link>
+
+  <joint name="caster_joint" type="revolute">
+    <parent link="base_link" />
+    <child link="caster_wheel" />
+    <origin xyz="0.33 0 0" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="-3.1415927" upper="3.1415927" effort="100" velocity="10" />
+  </joint>
+
+  <joint name="base_joint" type="fixed">
+    <parent link="base_footprint" />
+    <child link="base_link" />
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </joint>
+
+  <joint name="left_wheel_joint" type="revolute">
+    <parent link="base_link" />
+    <child link="left_wheel" />
+    <origin xyz="-0.167 0.2 0" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="-1.79769e+308" upper="1.79769e+308" effort="100" velocity="10" />
+  </joint>
+
+  <joint name="right_wheel_joint" type="revolute">
+    <parent link="base_link" />
+    <child link="right_wheel" />
+    <origin xyz="-0.167 -0.2 0" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit lower="-1.79769e+308" upper="1.79769e+308" effort="100" velocity="10" />
+  </joint>
+
+  <joint name="laser_cylinder_joint" type="fixed">
+    <parent link="base_link" />
+    <child link="laser_cylinder_link" />
+    <origin xyz="0.3 0 0.12" rpy="0 0 0" />
+  </joint>
+
+  <joint name="laser_joint" type="fixed">
+    <parent link="laser_cylinder_link" />
+    <child link="laser_link" />
+    <origin xyz="0 0 0.15000000000000002" rpy="0 0 0" />
+  </joint>
+
+</robot>

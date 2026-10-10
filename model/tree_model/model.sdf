@@ -1,0 +1,111 @@
+<?xml version="1.0"?>
+<sdf version="1.7">
+
+  <model name="apple_tree">
+    <!-- ============================================================ -->
+    <!-- ⭐ 正式版：拿到DAE模型后，取消此段注释，删除下方占位版本 -->
+    <!--
+    <link name="tree_trunk">
+      <visual name="trunk_visual">
+        <geometry>
+          <mesh>
+            <uri>model://tree_model/meshes/tree.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.4 0.25 0.1 1</ambient>
+          <diffuse>0.35 0.22 0.08 1</diffuse>
+        </material>
+      </visual>
+      <collision name="trunk_collision">
+        <geometry>
+          <mesh>
+            <uri>model://tree_model/meshes/tree.dae</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+    -->
+    <!-- 正式版结束 -->
+
+    <!-- ============================================================ -->
+    <!-- 📌 占位版本（几何体）：拿到DAE后删除此块 -->
+    <!-- ============================================================ -->
+
+    <!-- 树干：棕色圆柱，高1.2m，半径0.08m -->
+    <link name="tree_trunk">
+      <pose>0 0 0.6 0 0 0</pose>
+      <visual name="trunk_visual">
+        <geometry>
+          <cylinder>
+            <radius>0.08</radius>
+            <length>1.2</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.4 0.25 0.1 1</ambient>
+          <diffuse>0.35 0.22 0.08 1</diffuse>
+        </material>
+      </visual>
+      <collision name="trunk_collision">
+        <geometry>
+          <cylinder>
+            <radius>0.08</radius>
+            <length>1.2</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <inertial>
+        <pose>0 0 0.6 0 0 0</pose>
+        <mass>5.0</mass>
+        <inertia>
+          <ixx>0.21</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.21</iyy><iyz>0</iyz>
+          <izz>0.016</izz>
+        </inertia>
+      </inertial>
+    </link>
+
+    <!-- 树冠：绿色球体，半径0.65m，底部在树干顶部(高度1.2m) -->
+    <link name="tree_canopy">
+      <pose>0 0 1.55 0 0 0</pose>
+      <visual name="canopy_visual">
+        <geometry>
+          <sphere>
+            <radius>0.65</radius>
+          </sphere>
+        </geometry>
+        <material>
+          <ambient>0.12 0.45 0.08 1</ambient>
+          <diffuse>0.1 0.4 0.06 1</diffuse>
+        </material>
+      </visual>
+      <collision name="canopy_collision">
+        <geometry>
+          <sphere>
+            <radius>0.65</radius>
+          </sphere>
+        </geometry>
+      </collision>
+      <inertial>
+        <pose>0 0 1.55 0 0 0</pose>
+        <mass>3.0</mass>
+        <inertia>
+          <ixx>0.51</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.51</iyy><iyz>0</iyz>
+          <izz>0.51</izz>
+        </inertia>
+      </inertial>
+    </link>
+
+    <!-- 固定关节连接树干和树冠 -->
+    <joint name="trunk_to_canopy" type="fixed">
+      <parent>tree_trunk</parent>
+      <child>tree_canopy</child>
+    </joint>
+
+    <!-- 树是静态物体，不参与动力学仿真（固定不动） -->
+    <static>true</static>
+  </model>
+
+</sdf>
