@@ -20,8 +20,14 @@ setup(
             'scripts/spawn_apples.py',
         ]),
         ('share/' + package_name + '/model', glob('model/*.sdf') + glob('model/*.urdf')),
-        ('share/' + package_name + '/model/tree_model', glob('model/tree_model/**/*')),
-        ('share/' + package_name + '/model/apple_model', glob('model/apple_model/**/*')),
+        ('share/' + package_name + '/model/tree_model', [
+            'model/tree_model/model.sdf',
+            'model/tree_model/model.config',
+        ]),
+        ('share/' + package_name + '/model/apple_model', [
+            'model/apple_model/model.sdf',
+            'model/apple_model/model.config',
+        ]),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
