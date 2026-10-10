@@ -14,8 +14,12 @@ setup(
         ('share/' + package_name + '/launch',[
             'launch/my_robot_nav2_launchv3_hourse.py',
             'launch/my_robot_orchard_launch.py',
+            'launch/spawn_apples_launch.py',
         ]),
-        ('share/' + package_name + '/model',glob('model/*.sdf')),
+        ('share/' + package_name + '/scripts',[
+            'scripts/spawn_apples.py',
+        ]),
+        ('share/' + package_name + '/model', glob('model/*.sdf') + glob('model/*.urdf')),
         ('share/' + package_name + '/model/tree_model', glob('model/tree_model/**/*')),
         ('share/' + package_name + '/model/apple_model', glob('model/apple_model/**/*')),
     ],

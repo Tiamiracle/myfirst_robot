@@ -218,10 +218,10 @@
     <!-- ============================================ -->
     <!-- 5. 物理参数（全局） -->
     <!-- ============================================ -->
+    <gravity>0 0 -9.8</gravity>
     <physics name="default_physics" default="0" type="ode">
       <max_step_size>0.001</max_step_size>
       <real_time_factor>1.0</real_time_factor>
-      <gravity>0 0 -9.8</gravity>
       <ode>
         <solver>
           <type>quick</type>

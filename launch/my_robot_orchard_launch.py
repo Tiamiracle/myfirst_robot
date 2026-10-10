@@ -20,12 +20,14 @@ def generate_launch_description():
     use_namespace = LaunchConfiguration('use_namespace')
     rviz_config_file = LaunchConfiguration('rviz_config_file')
     use_rviz = LaunchConfiguration('use_rviz')
-
     # ========== 模型文件（果园版） ==========
     sdf_file = os.path.join(project_dir, 'model', 'myrobotv52.sdf')
     urdf_file = os.path.join(project_dir, 'model', 'myrobotv52.urdf')
     world_file = os.path.join(project_dir, 'model', 'myworld_orchard.sdf')
-
+    model_path = os.path.join(project_dir, 'model')
+    os.environ['GAZEBO_MODEL_PATH'] = (
+        model_path + ':' + os.environ.get('GAZEBO_MODEL_PATH', '')
+    )
     # 启动参数配置
     declare_robot_name_cmd = DeclareLaunchArgument(
         'robot_name', default_value='myrobotv5', description='name of the robot'
