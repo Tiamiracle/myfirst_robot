@@ -329,6 +329,162 @@
       <publish_odom_tf>true</publish_odom_tf>
       <odom_topic>odom</odom_topic>
     </plugin>
+
+    <!-- ============================================================ -->
+    <!-- 4-DOF 吸盘机械臂（挂在 base_link 顶部，自建几何体） -->
+    <!-- 关节角为 0 时整臂竖直朝上；关节轴必须 -->
+    <!-- use_parent_model_frame=false，否则肘/腕轴不随大臂旋转       -->
+    <!-- ============================================================ -->
+
+    <link name="arm_yaw_link">
+      <pose>-0.15 0 0.0835 0 0 0</pose>
+      <visual name="arm_yaw_visual">
+        <geometry><cylinder><radius>0.04</radius><length>0.10</length></cylinder></geometry>
+        <material><name>gray</name><ambient>0.5 0.5 0.5 1</ambient><diffuse>0.5 0.5 0.5 1</diffuse></material>
+      </visual>
+      <collision name="arm_yaw_col">
+        <pose>0 0 0.05 0 0 0</pose>
+        <geometry><cylinder><radius>0.04</radius><length>0.10</length></cylinder></geometry>
+      </collision>
+      <inertial>
+        <mass>0.6</mass>
+        <inertia><ixx>0.00074</ixx><ixy>0</ixy><ixz>0</ixz><iyy>0.00074</iyy><iyz>0</iyz><izz>0.00048</izz></inertia>
+      </inertial>
+    </link>
+
+    <link name="upper_arm_link">
+      <pose>-0.15 0 0.1835 0 0 0</pose>
+      <visual name="upper_visual">
+        <pose>0 0 0.30 0 0 0</pose>
+        <geometry><cylinder><radius>0.035</radius><length>0.60</length></cylinder></geometry>
+        <material><name>orange</name><ambient>1 0.5 0 1</ambient><diffuse>1 0.5 0 1</diffuse></material>
+      </visual>
+      <collision name="upper_col">
+        <pose>0 0 0.30 0 0 0</pose>
+        <geometry><cylinder><radius>0.035</radius><length>0.60</length></cylinder></geometry>
+      </collision>
+      <inertial>
+        <mass>0.8</mass>
+        <inertia><ixx>0.024245</ixx><ixy>0</ixy><ixz>0</ixz><iyy>0.024245</iyy><iyz>0</iyz><izz>0.00049</izz></inertia>
+      </inertial>
+    </link>
+
+    <link name="forearm_link">
+      <pose>-0.15 0 0.7835 0 0 0</pose>
+      <visual name="fore_visual">
+        <pose>0 0 0.30 0 0 0</pose>
+        <geometry><cylinder><radius>0.03</radius><length>0.60</length></cylinder></geometry>
+        <material><name>orange</name><ambient>1 0.5 0 1</ambient><diffuse>1 0.5 0 1</diffuse></material>
+      </visual>
+      <collision name="fore_col">
+        <pose>0 0 0.30 0 0 0</pose>
+        <geometry><cylinder><radius>0.03</radius><length>0.60</length></cylinder></geometry>
+      </collision>
+      <inertial>
+        <mass>0.6</mass>
+        <inertia><ixx>0.018135</ixx><ixy>0</ixy><ixz>0</ixz><iyy>0.018135</iyy><iyz>0</iyz><izz>0.00027</izz></inertia>
+      </inertial>
+    </link>
+
+    <link name="wrist_link">
+      <pose>-0.15 0 1.3835 0 0 0</pose>
+      <visual name="wrist_visual">
+        <pose>0 0 0.10 0 0 0</pose>
+        <geometry><cylinder><radius>0.025</radius><length>0.20</length></cylinder></geometry>
+        <material><name>gray</name><ambient>0.4 0.4 0.4 1</ambient><diffuse>0.4 0.4 0.4 1</diffuse></material>
+      </visual>
+      <collision name="wrist_col">
+        <pose>0 0 0.10 0 0 0</pose>
+        <geometry><cylinder><radius>0.025</radius><length>0.20</length></cylinder></geometry>
+      </collision>
+      <inertial>
+        <mass>0.25</mass>
+        <inertia><ixx>0.000872</ixx><ixy>0</ixy><ixz>0</ixz><iyy>0.000872</iyy><iyz>0</iyz><izz>0.000078</izz></inertia>
+      </inertial>
+    </link>
+
+    <link name="suction_cup_link">
+      <pose>-0.15 0 1.5835 0 0 0</pose>
+      <visual name="cup_visual">
+        <pose>0 0 0.025 0 0 0</pose>
+        <geometry><cylinder><radius>0.06</radius><length>0.05</length></cylinder></geometry>
+        <material><name>black</name><ambient>0.1 0.1 0.1 1</ambient><diffuse>0.1 0.1 0.1 1</diffuse></material>
+      </visual>
+      <collision name="cup_col">
+        <pose>0 0 0.025 0 0 0</pose>
+        <geometry><cylinder><radius>0.06</radius><length>0.05</length></cylinder></geometry>
+      </collision>
+      <inertial>
+        <mass>0.1</mass>
+        <inertia><ixx>0.000111</ixx><ixy>0</ixy><ixz>0</ixz><iyy>0.000111</iyy><iyz>0</iyz><izz>0.00018</izz></inertia>
+      </inertial>
+    </link>
+
+    <!-- 关节原点 = 子 link 的 model pose（沿用现有 diff-drive 模型风格） -->
+    <joint name="joint1_base_yaw" type="revolute">
+      <parent>base_link</parent>
+      <child>arm_yaw_link</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <use_parent_model_frame>false</use_parent_model_frame>
+        <limit><lower>-3.1415926</lower><upper>3.1415926</upper><effort>50</effort><velocity>5</velocity></limit>
+      </axis>
+    </joint>
+
+    <joint name="joint2_shoulder_pitch" type="revolute">
+      <parent>arm_yaw_link</parent>
+      <child>upper_arm_link</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <use_parent_model_frame>false</use_parent_model_frame>
+        <limit><lower>-2.0</lower><upper>2.0</upper><effort>50</effort><velocity>5</velocity></limit>
+      </axis>
+    </joint>
+
+    <joint name="joint3_elbow_pitch" type="revolute">
+      <parent>upper_arm_link</parent>
+      <child>forearm_link</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <use_parent_model_frame>false</use_parent_model_frame>
+        <limit><lower>-2.0</lower><upper>2.0</upper><effort>50</effort><velocity>5</velocity></limit>
+      </axis>
+    </joint>
+
+    <joint name="joint4_wrist_pitch" type="revolute">
+      <parent>forearm_link</parent>
+      <child>wrist_link</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <use_parent_model_frame>false</use_parent_model_frame>
+        <limit><lower>-2.0</lower><upper>2.0</upper><effort>50</effort><velocity>5</velocity></limit>
+      </axis>
+    </joint>
+
+    <joint name="suction_fixed_joint" type="fixed">
+      <parent>wrist_link</parent>
+      <child>suction_cup_link</child>
+    </joint>
+
+    <!-- 发布 4 个臂关节状态到 /joint_states，供 robot_state_publisher 播 TF -->
+    <plugin name="arm_joint_state_publisher" filename="libgazebo_ros_joint_state_publisher.so">
+      <ros><namespace></namespace></ros>
+      <update_rate>50</update_rate>
+      <joint_name>joint1_base_yaw</joint_name>
+      <joint_name>joint2_shoulder_pitch</joint_name>
+      <joint_name>joint3_elbow_pitch</joint_name>
+      <joint_name>joint4_wrist_pitch</joint_name>
+    </plugin>
+
+    <!-- 订阅 JointTrajectory 话题，运动学置位这 4 个关节 -->
+    <plugin name="arm_joint_pose_trajectory" filename="libgazebo_ros_joint_pose_trajectory.so">
+      <ros>
+        <namespace></namespace>
+        <remapping>~/set_joint_trajectory:=/set_joint_trajectory</remapping>
+      </ros>
+      <update_rate>100</update_rate>
+    </plugin>
+
   </model>
 
 </sdf>
