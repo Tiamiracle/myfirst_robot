@@ -11,11 +11,11 @@ Design intent (Module 1 -> Module 3 handoff):
   - During picking: call /link_attacher_node/detach first, then grab/remove.
 
 Service used:
-  /link_attacher_node/attach  (gazebo_ros_link_attacher/srv/Attach)
+  /attach  (gazebo_ros_link_attacher/srv/Attach)
     model_name_1 / link_name_1  -> apple (apple_body)
     model_name_2 / link_name_2  -> tree_xx (tree_canopy)
 
-Run: python3 spawn_apples.py   (after gzserver + /spawn_entity + /link_attacher_node/attach are up)
+Run: python3 spawn_apples.py   (after gzserver + /spawn_entity + /attach are up)
 """
 import os
 import time
@@ -52,13 +52,13 @@ class AppleSpawner(Node):
         # Spawn entity client
         self.spawn_cli = self.create_client(SpawnEntity, '/spawn_entity')
         # Correct service type from gazebo_ros_link_attacher
-        self.attach_cli = self.create_client(Attach, '/link_attacher_node/attach')
+        self.attach_cli = self.create_client(Attach, '/attach')
 
         self.get_logger().info('apple_spawner started; target: %d apples'
                                % (len(TREES) * len(APPLE_OFFSETS)))
 
     def wait_services(self, timeout=30.0):
-        """Wait for BOTH /spawn_entity and /link_attacher_node/attach."""
+        """Wait for BOTH /spawn_entity and /attach."""
         start = time.time()
         spawn_ok = False
         attach_ok = False
@@ -76,9 +76,9 @@ class AppleSpawner(Node):
             if not attach_ok:
                 if self.attach_cli.wait_for_service(timeout_sec=0.5):
                     attach_ok = True
-                    self.get_logger().info('/link_attacher_node/attach ready')
+                    self.get_logger().info('/attach ready')
                 else:
-                    self.get_logger().info('waiting for /link_attacher_node/attach ...')
+                    self.get_logger().info('waiting for /attach ...')
         return True
 
     def spawn_all(self):
