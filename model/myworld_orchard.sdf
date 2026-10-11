@@ -217,8 +217,9 @@
 
     <!-- ============================================ -->
     <!-- 5. Link Attacher 插件（WorldPlugin，提供 /link_attacher_node/attach 和 /detach） -->
+    <!--    注意：库文件名带 _plugin 后缀，由 gazebo_ros_link_attacher 的 CMake 生成 -->
     <!-- ============================================ -->
-    <plugin name="gazebo_ros_link_attacher" filename="libgazebo_ros_link_attacher.so"/>
+    <plugin name="ros_link_attacher_plugin" filename="libgazebo_ros_link_attacher_plugin.so"/>
 
     <!-- ============================================ -->
     <!-- 6. 物理参数（全局） -->
