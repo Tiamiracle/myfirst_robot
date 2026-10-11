@@ -216,7 +216,24 @@
     </include>
 
     <!-- ============================================ -->
-    <!-- 5. 物理参数（全局） -->
+    <!-- 5. Link Attacher 插件（提供 /attach 和 /detach 服务） -->
+    <!-- ============================================ -->
+    <model name="link_attacher_service">
+      <static>true</static>
+      <pose>0 0 -100 0 0 0</pose>
+      <link name="link"/>
+      <plugin name="gazebo_ros_link_attacher" filename="libgazebo_ros_link_attacher.so">
+        <link1_attachment_point>
+          <x>0</x><y>0</y><z>0</z>
+        </link1_attachment_point>
+        <link2_attachment_point>
+          <x>0</x><y>0</y><z>0</z>
+        </link2_attachment_point>
+      </plugin>
+    </model>
+
+    <!-- ============================================ -->
+    <!-- 6. 物理参数（全局） -->
     <!-- ============================================ -->
     <gravity>0 0 -9.8</gravity>
     <physics name="default_physics" default="0" type="ode">

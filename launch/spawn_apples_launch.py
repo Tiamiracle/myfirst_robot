@@ -16,10 +16,10 @@ def generate_launch_description():
         launch_arguments={'use_rviz': LaunchConfiguration('use_rviz', default='True')}.items(),
     )
 
-    # 2) After the world is loaded, spawn apples onto the tree crowns.
-    #    TimerAction gives gzserver time to advertise /spawn_entity.
+    # 2) After the world is loaded, spawn+attach apples onto tree crowns.
+    #    4s delay gives gzserver + link_attacher plugin time to advertise services.
     spawn_apples = TimerAction(
-        period=8.0,
+        period=4.0,
         actions=[
             LogInfo(msg='[spawn_apples] spawning apples onto tree crowns...'),
             ExecuteProcess(cmd=['python3', script_path], output='screen'),
