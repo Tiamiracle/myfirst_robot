@@ -32,11 +32,13 @@ TREES = [
     ('tree_07', 6, -4), ('tree_08', 12, -4), ('tree_09', 18, -4),
 ]
 
-# Per-tree apple offsets (dx, dy, dz) relative to tree base, within crown
+# Per-tree apple offsets (dx, dy, dz) relative to tree base, within crown.
+# Scaled by 0.75 together with tree_model/model.sdf so apples stay on the
+# (now smaller) canopy. Canopy center is at z=1.1625, radius 0.4875.
 APPLE_OFFSETS = [
-    (0.20, 0.15, 1.42),
-    (-0.18, 0.22, 1.62),
-    (0.12, -0.22, 1.52),
+    (0.15, 0.1125, 1.065),
+    (-0.135, 0.165, 1.215),
+    (0.09, -0.165, 1.14),
 ]
 
 

@@ -30,16 +30,18 @@
 
     <!-- ============================================================ -->
     <!-- 📌 占位版本（几何体）：拿到DAE后删除此块 -->
+    <!--    比例系数 s = 0.75（相对最初的 2.2m 高树缩小）， -->
+    <!--    使树与 0.67m 长的底盘视觉更协调；树总高约 1.65m。 -->
     <!-- ============================================================ -->
 
-    <!-- 树干：棕色圆柱，高1.2m，半径0.08m -->
+    <!-- 树干：棕色圆柱，高0.9m，半径0.06m -->
     <link name="tree_trunk">
-      <pose>0 0 0.6 0 0 0</pose>
+      <pose>0 0 0.45 0 0 0</pose>
       <visual name="trunk_visual">
         <geometry>
           <cylinder>
-            <radius>0.08</radius>
-            <length>1.2</length>
+            <radius>0.06</radius>
+            <length>0.9</length>
           </cylinder>
         </geometry>
         <material>
@@ -50,29 +52,29 @@
       <collision name="trunk_collision">
         <geometry>
           <cylinder>
-            <radius>0.08</radius>
-            <length>1.2</length>
+            <radius>0.06</radius>
+            <length>0.9</length>
           </cylinder>
         </geometry>
       </collision>
       <inertial>
-        <pose>0 0 0.6 0 0 0</pose>
+        <pose>0 0 0.45 0 0 0</pose>
         <mass>5.0</mass>
         <inertia>
-          <ixx>0.21</ixx><ixy>0</ixy><ixz>0</ixz>
-          <iyy>0.21</iyy><iyz>0</iyz>
-          <izz>0.016</izz>
+          <ixx>0.118</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.118</iyy><iyz>0</iyz>
+          <izz>0.009</izz>
         </inertia>
       </inertial>
     </link>
 
-    <!-- 树冠：绿色球体，半径0.65m，底部在树干顶部(高度1.2m) -->
+    <!-- 树冠：绿色球体，半径0.4875m -->
     <link name="tree_canopy">
-      <pose>0 0 1.55 0 0 0</pose>
+      <pose>0 0 1.1625 0 0 0</pose>
       <visual name="canopy_visual">
         <geometry>
           <sphere>
-            <radius>0.65</radius>
+            <radius>0.4875</radius>
           </sphere>
         </geometry>
         <material>
@@ -83,17 +85,17 @@
       <collision name="canopy_collision">
         <geometry>
           <sphere>
-            <radius>0.65</radius>
+            <radius>0.4875</radius>
           </sphere>
         </geometry>
       </collision>
       <inertial>
-        <pose>0 0 1.55 0 0 0</pose>
+        <pose>0 0 1.1625 0 0 0</pose>
         <mass>3.0</mass>
         <inertia>
-          <ixx>0.51</ixx><ixy>0</ixy><ixz>0</ixz>
-          <iyy>0.51</iyy><iyz>0</iyz>
-          <izz>0.51</izz>
+          <ixx>0.287</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.287</iyy><iyz>0</iyz>
+          <izz>0.287</izz>
         </inertia>
       </inertial>
     </link>
