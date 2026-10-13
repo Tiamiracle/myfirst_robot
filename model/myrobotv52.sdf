@@ -805,6 +805,7 @@
     <joint name="wrist_rotate_joint" type="revolute">
       <parent>arm_extend_forearm</parent>
       <child>arm_wrist_rot</child>
+      <pose>0.18 0 0 0 0 0</pose>
       <axis>
         <xyz>1 0 0</xyz>
         <use_parent_model_frame>false</use_parent_model_frame>
@@ -821,12 +822,14 @@
     <joint name="gripper_fixed_joint" type="fixed">
       <parent>arm_wrist_rot</parent>
       <child>gripper_base</child>
+      <pose>0.06 0 0 -3.1415926 0 -3.1415926</pose>
     </joint>
 
     <!-- 手指1关节 (revolute, Y轴, 带力传感器) -->
     <joint name="finger1_joint" type="revolute">
       <parent>gripper_base</parent>
       <child>finger_1</child>
+      <pose>0 0.04 -0.07 0 0 0</pose>
       <axis>
         <xyz>0 1 0</xyz>
         <use_parent_model_frame>false</use_parent_model_frame>
@@ -852,6 +855,7 @@
     <joint name="finger2_joint" type="revolute">
       <parent>gripper_base</parent>
       <child>finger_2</child>
+      <pose>0 -0.04 -0.07 0 0 0</pose>
       <axis>
         <xyz>0 1 0</xyz>
         <use_parent_model_frame>false</use_parent_model_frame>
@@ -877,6 +881,7 @@
     <joint name="finger3_joint" type="revolute">
       <parent>gripper_base</parent>
       <child>finger_3</child>
+      <pose>0 0 0.05 0 0 0</pose>
       <axis>
         <xyz>0 1 0</xyz>
         <use_parent_model_frame>false</use_parent_model_frame>
