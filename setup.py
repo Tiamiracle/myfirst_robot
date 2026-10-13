@@ -43,6 +43,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            'arm_keyboard_teleop = scripts.arm_keyboard_teleop:main',
         ],
     },
 )

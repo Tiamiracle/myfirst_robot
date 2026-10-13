@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <sdf version="1.7">
   <model name="vehicle_blue">
+    <!-- ==================== 底盘部分 ==================== -->
     <link name="base_footprint">
       <inertial>
         <mass>0.001</mass>
@@ -14,6 +15,7 @@
         </inertia>
       </inertial>
     </link>
+
     <link name="base_link">
       <visual name="base_link_visual_0">
         <geometry>
@@ -46,8 +48,8 @@
           <izz>8.3319</izz>
         </inertia>
       </inertial>
-
     </link>
+
     <link name="left_wheel">
       <pose>-0.167 0.2 0 0 0 0</pose>
       <visual name="left_wheel_visual_0">
@@ -85,6 +87,7 @@
         </inertia>
       </inertial>
     </link>
+
     <link name="right_wheel">
       <pose>-0.167 -0.2 0 0 0 0</pose>
       <visual name="right_wheel_visual_0">
@@ -122,6 +125,7 @@
         </inertia>
       </inertial>
     </link>
+
     <link name="caster_wheel">
       <pose>0.33 0 0 0 0 0</pose>
       <visual name="caster_wheel_visual_0">
@@ -159,6 +163,8 @@
         </inertia>
       </inertial>
     </link>
+
+    <!-- 激光雷达支架 -->
     <link name="laser_cylinder_link">
       <pose>0.3 0 0.12 0 0 0</pose>
       <visual name="laser_cylinder_link_visual_0">
@@ -196,6 +202,7 @@
       </inertial>
     </link>
 
+    <!-- 激光雷达（带gpu_lidar传感器） -->
     <link name="laser_link">
       <pose>0.3 0 0.27 0 0 0</pose>
       <visual name="laser_link_visual_0">
@@ -223,15 +230,14 @@
         </inertia>
       </inertial>
 
-      <sensor name="hls_lfcd_lds" type="ray">
+      <!-- GPU LiDAR传感器（Gazebo Sim原生格式，由gz-sim-sensors-system驱动） -->
+      <sensor name="hls_lfcd_lds" type="gpu_lidar">
         <always_on>true</always_on>
-        <!-- <visualize>true</visualize> -->
         <visualize>false</visualize>
-        <pose>0 0 0 0 0 0</pose>
-        <update_rate>5</update_rate>
+        <update_rate>10</update_rate>
         <topic>/scan</topic>
         <gz_frame_id>laser_link</gz_frame_id>
-        <ray>
+        <lidar>
           <scan>
             <horizontal>
               <samples>360</samples>
@@ -239,6 +245,12 @@
               <min_angle>0.000000</min_angle>
               <max_angle>6.280000</max_angle>
             </horizontal>
+            <vertical>
+              <samples>1</samples>
+              <resolution>1.000000</resolution>
+              <min_angle>0</min_angle>
+              <max_angle>0</max_angle>
+            </vertical>
           </scan>
           <range>
             <min>0.05</min>
@@ -250,18 +262,11 @@
             <mean>0.0</mean>
             <stddev>0.01</stddev>
           </noise>
-        </ray>
-        <plugin name="laser_plugin" filename="libgazebo_ros_ray_sensor.so">
-          <ros>
-            <namespace>/</namespace>
-            <remapping>~/out:=/scan</remapping>
-          </ros>
-          <output_type>sensor_msgs/LaserScan</output_type>
-          <frame_name>laser_link</frame_name>
-        </plugin>
+        </lidar>
       </sensor>
     </link>
 
+    <!-- ==================== 底盘关节 ==================== -->
     <joint name="caster_joint" type="revolute">
       <parent>base_link</parent>
       <child>caster_wheel</child>
@@ -276,10 +281,12 @@
         </limit>
       </axis>
     </joint>
+
     <joint name="base_joint" type="fixed">
       <parent>base_footprint</parent>
       <child>base_link</child>
     </joint>
+
     <joint name="left_wheel_joint" type="revolute">
       <parent>base_link</parent>
       <child>left_wheel</child>
@@ -294,6 +301,7 @@
         </limit>
       </axis>
     </joint>
+
     <joint name="right_wheel_joint" type="revolute">
       <parent>base_link</parent>
       <child>right_wheel</child>
@@ -308,29 +316,16 @@
         </limit>
       </axis>
     </joint>
+
     <joint name="laser_cylinder_joint" type="fixed">
       <parent>base_link</parent>
       <child>laser_cylinder_link</child>
     </joint>
+
     <joint name="laser_joint" type="fixed">
       <parent>laser_cylinder_link</parent>
       <child>laser_link</child>
     </joint>
-    <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
-      <ros>
-        <namespace></namespace>
-        <remapping>~/cmd_vel:=/cmd_vel</remapping>
-      </ros>
-      <left_joint>left_wheel_joint</left_joint>
-      <right_joint>right_wheel_joint</right_joint>
-      <wheel_separation>0.4</wheel_separation>
-      <wheel_radius>0.133</wheel_radius>
-      <max_wheel_torque>20</max_wheel_torque>
-      <max_wheel_acceleration>1.0</max_wheel_acceleration>
-      <publish_odom>true</publish_odom>
-      <publish_odom_tf>true</publish_odom_tf>
-      <odom_topic>odom</odom_topic>
-    </plugin>
 
     <!-- ============================================================ -->
     <!-- 果园采摘机械臂（完全按照PDF第5章 orchard_robot 定义）       -->
@@ -626,8 +621,8 @@
           </box>
         </geometry>
         <material>
-          <ambient>0.94902353 0.94118039 0.90980784 1.00000000</ambient>
-          <diffuse>0.94902353 0.94118039 0.90980784 1.00000000</diffuse>
+          <ambient>0.20000392 0.40000392 0.80000392 1.00000000</ambient>
+          <diffuse>0.20000392 0.40000392 0.80000392 1.00000000</diffuse>
         </material>
       </visual>
       <collision name="finger_1_collision_0">
@@ -662,8 +657,8 @@
           </box>
         </geometry>
         <material>
-          <ambient>0.94902353 0.94118039 0.90980784 1.00000000</ambient>
-          <diffuse>0.94902353 0.94118039 0.90980784 1.00000000</diffuse>
+          <ambient>0.20000392 0.40000392 0.80000392 1.00000000</ambient>
+          <diffuse>0.20000392 0.40000392 0.80000392 1.00000000</diffuse>
         </material>
       </visual>
       <collision name="finger_2_collision_0">
@@ -698,8 +693,8 @@
           </box>
         </geometry>
         <material>
-          <ambient>0.94902353 0.94118039 0.90980784 1.00000000</ambient>
-          <diffuse>0.94902353 0.94118039 0.90980784 1.00000000</diffuse>
+          <ambient>0.20000392 0.40000392 0.80000392 1.00000000</ambient>
+          <diffuse>0.20000392 0.40000392 0.80000392 1.00000000</diffuse>
         </material>
       </visual>
       <collision name="finger_3_collision_0">
@@ -723,7 +718,7 @@
       </inertial>
     </link>
 
-    <!-- ==================== 关节定义（按PDF第5章） ==================== -->
+    <!-- ==================== 机械臂关节定义（按PDF第5章） ==================== -->
 
     <!-- 升降基座固定关节 -->
     <joint name="lift_base_joint" type="fixed">
@@ -841,7 +836,7 @@
         </limit>
       </axis>
       <sensor name="finger1_force" type="force_torque">
-        <update_rate>1</update_rate>
+        <update_rate>50</update_rate>
         <enable>true</enable>
         <topic>/finger1_force</topic>
         <force_torque>
@@ -867,7 +862,7 @@
         </limit>
       </axis>
       <sensor name="finger2_force" type="force_torque">
-        <update_rate>1</update_rate>
+        <update_rate>50</update_rate>
         <enable>true</enable>
         <topic>/finger2_force</topic>
         <force_torque>
@@ -893,7 +888,7 @@
         </limit>
       </axis>
       <sensor name="finger3_force" type="force_torque">
-        <update_rate>1</update_rate>
+        <update_rate>50</update_rate>
         <enable>true</enable>
         <topic>/finger3_force</topic>
         <force_torque>
@@ -903,9 +898,32 @@
       </sensor>
     </joint>
 
-    <!-- ==================== Gazebo 插件（按PDF第5.3节） ==================== -->
+    <!-- ==================== Gazebo Sim Fortress 插件 ==================== -->
 
-    <!-- 关节状态发布器 -->
+    <!-- 1. 场景广播器（发布TF树到/world/pose等话题） -->
+    <plugin filename="gz-sim-scene-broadcaster-system"
+             name="gz::sim::systems::SceneBroadcaster"/>
+
+    <!-- 2. 差速底盘控制器（替代 libgazebo_ros_diff_drive.so） -->
+    <plugin filename="gz-sim-diff-drive-system"
+             name="gz::sim::systems::DiffDrive">
+      <left_joint>left_wheel_joint</left_joint>
+      <right_joint>right_wheel_joint</right_joint>
+      <wheel_separation>0.4</wheel_separation>
+      <wheel_radius>0.133</wheel_radius>
+      <topic>/cmd_vel</topic>
+      <frame_id>base_link</frame_id>
+      <child_frame_id>base_footprint</child_frame_id>
+      <publish_odom>true</publish_odom>
+      <publish_odom_tf>true</publish_odom_tf>
+      <odom_topic>odom</odom_topic>
+    </plugin>
+
+    <!-- 3. 传感器系统（驱动激光雷达、相机等所有传感器） -->
+    <plugin filename="gz-sim-sensors-system"
+             name="gz::sim::systems::Sensors"/>
+
+    <!-- 4. 关节状态发布器（发布 /joint_states 到ROS） -->
     <plugin filename="gz-sim-joint-state-publisher-system"
              name="gz::sim::systems::JointStatePublisher">
         <joint_name>left_wheel_joint</joint_name>
@@ -922,18 +940,13 @@
         <update_rate>30</update_rate>
     </plugin>
 
-    <!-- 传感器系统 -->
-    <plugin
-        filename="gz-sim-sensors-system"
-        name="gz::sim::systems::Sensors">
-        <render_engine>ogre2</render_engine>
-    </plugin>
+    <!-- 5. 力/力矩传感器系统（通用名，Fortress自动解析为libgz-sim6-...） -->
+    <plugin filename="gz-sim-forcetorque-system"
+             name="gz::sim::systems::ForceTorque"/>
 
-    <!-- 场景广播器 -->
-    <plugin filename="gz-sim-scene-broadcaster-system"
-             name="gz::sim::systems::SceneBroadcaster"/>
+    <!-- ========== 8个机械臂关节位置控制器（JointPositionController） ========== -->
 
-    <!-- 升降平台位置控制器 P=100, I=0, D=10 -->
+    <!-- J1: 升降平台 P=100, I=0, D=10 -->
     <plugin filename="gz-sim-joint-position-controller-system"
              name="gz::sim::systems::JointPositionController">
         <joint_name>platform_joint</joint_name>
@@ -944,7 +957,7 @@
         <cmd_topic>/model/vehicle_blue/joint/platform_joint/cmd_pos</cmd_topic>
     </plugin>
 
-    <!-- 手臂旋转位置控制器 P=100, I=0, D=10 -->
+    <!-- J2: 手臂旋转 P=100, I=0, D=10 -->
     <plugin filename="gz-sim-joint-position-controller-system"
              name="gz::sim::systems::JointPositionController">
         <joint_name>arm_rot_joint</joint_name>
@@ -955,7 +968,7 @@
         <cmd_topic>/model/vehicle_blue/joint/arm_rot_joint/cmd_pos</cmd_topic>
     </plugin>
 
-    <!-- 大臂俯仰位置控制器 P=150, I=0, D=15 -->
+    <!-- J3: 大臂俯仰 P=150, I=0, D=15 -->
     <plugin filename="gz-sim-joint-position-controller-system"
              name="gz::sim::systems::JointPositionController">
         <joint_name>arm_upper_pitch_joint</joint_name>
@@ -966,7 +979,7 @@
         <cmd_topic>/model/vehicle_blue/joint/arm_upper_pitch_joint/cmd_pos</cmd_topic>
     </plugin>
 
-    <!-- 前臂伸缩位置控制器 P=50, I=0, D=5 -->
+    <!-- J4: 前臂伸缩 P=50, I=0, D=5 -->
     <plugin filename="gz-sim-joint-position-controller-system"
              name="gz::sim::systems::JointPositionController">
         <joint_name>arm_forearm_extend_joint</joint_name>
@@ -977,7 +990,7 @@
         <cmd_topic>/model/vehicle_blue/joint/arm_forearm_extend_joint/cmd_pos</cmd_topic>
     </plugin>
 
-    <!-- 腕部旋转位置控制器 P=50, I=0, D=5 -->
+    <!-- J5: 腕部旋转 P=50, I=0, D=5 -->
     <plugin filename="gz-sim-joint-position-controller-system"
              name="gz::sim::systems::JointPositionController">
         <joint_name>wrist_rotate_joint</joint_name>
@@ -988,7 +1001,7 @@
         <cmd_topic>/model/vehicle_blue/joint/wrist_rotate_joint/cmd_pos</cmd_topic>
     </plugin>
 
-    <!-- 手指1位置控制器 P=30, I=0, D=3 -->
+    <!-- J6: 手指1(右) P=30, I=0, D=3 -->
     <plugin filename="gz-sim-joint-position-controller-system"
              name="gz::sim::systems::JointPositionController">
         <joint_name>finger1_joint</joint_name>
@@ -999,7 +1012,7 @@
         <cmd_topic>/model/vehicle_blue/joint/finger1_joint/cmd_pos</cmd_topic>
     </plugin>
 
-    <!-- 手指2位置控制器 P=30, I=0, D=3 -->
+    <!-- J7: 手指2(左) P=30, I=0, D=3 -->
     <plugin filename="gz-sim-joint-position-controller-system"
              name="gz::sim::systems::JointPositionController">
         <joint_name>finger2_joint</joint_name>
@@ -1010,7 +1023,7 @@
         <cmd_topic>/model/vehicle_blue/joint/finger2_joint/cmd_pos</cmd_topic>
     </plugin>
 
-    <!-- 手指3位置控制器 P=30, I=0, D=3 -->
+    <!-- J8: 手指3(上) P=30, I=0, D=3 -->
     <plugin filename="gz-sim-joint-position-controller-system"
              name="gz::sim::systems::JointPositionController">
         <joint_name>finger3_joint</joint_name>
@@ -1020,10 +1033,6 @@
         <d_gain>3</d_gain>
         <cmd_topic>/model/vehicle_blue/joint/finger3_joint/cmd_pos</cmd_topic>
     </plugin>
-
-    <!-- 力/力矩传感器系统插件 -->
-    <plugin filename='libgz-sim8-forcetorque-system.so'
-             name='gz::sim::systems::ForceTorque'></plugin>
 
   </model>
 

@@ -1,142 +1,176 @@
 import os
-import xacro
 import tempfile
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.actions import DeclareLaunchArgument, ExecuteProcess, TimerAction
+from launch.conditions import IfCondition
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, Command
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from ament_index_python.packages import get_package_share_directory
-from launch.conditions import IfCondition
-from launch.substitutions import Command
 
 def generate_launch_description():
-    # 包路径获取
-    bringup_dir = get_package_share_directory('nav2_bringup')
+    # ==================== 路径配置 ====================
     project_dir = get_package_share_directory('myfirst_robot')
-    launch_dir = os.path.join(bringup_dir, 'launch')
-    use_sim_time = LaunchConfiguration('use_sim_time', default='True')
-    use_namespace = LaunchConfiguration('use_namespace')
-    rviz_config_file = LaunchConfiguration('rviz_config_file')
-    use_rviz = LaunchConfiguration('use_rviz')
-    # ========== 模型文件（果园版） ==========
     sdf_file = os.path.join(project_dir, 'model', 'myrobotv52.sdf')
     urdf_file = os.path.join(project_dir, 'model', 'myrobotv52.urdf')
     world_file = os.path.join(project_dir, 'model', 'myworld_orchard.sdf')
+
+    # Gazebo 模型路径（让 gz sim 能找到模型）
     model_path = os.path.join(project_dir, 'model')
+    os.environ['GZ_SIM_RESOURCE_PATH'] = (
+        model_path + ':' + os.environ.get('GZ_SIM_RESOURCE_PATH', '')
+    )
     os.environ['GAZEBO_MODEL_PATH'] = (
         model_path + ':' + os.environ.get('GAZEBO_MODEL_PATH', '')
     )
-    # 启动参数配置
-    declare_robot_name_cmd = DeclareLaunchArgument(
-        'robot_name', default_value='myrobotv5', description='name of the robot'
+
+    # Nav2 路径
+    bringup_dir = get_package_share_directory('nav2_bringup')
+    launch_dir = os.path.join(bringup_dir, 'launch')
+
+    # ==================== 声明参数 ====================
+    use_sim_time = LaunchConfiguration('use_sim_time', default='True')
+    use_rviz = LaunchConfiguration('use_rviz', default='True')
+    rviz_config_file = LaunchConfiguration(
+        'rviz_config_file',
+        default_value=os.path.join(bringup_dir, 'rviz', 'nav2_default_view.rviz')
     )
 
-    declare_robot_sdf_cmd = DeclareLaunchArgument(
-        'robot_sdf',
-        default_value=sdf_file,
-        description='Full path to robot sdf file to spawn the robot in gazebo',
+    declare_use_sim_time = DeclareLaunchArgument(
+        'use_sim_time', default_value='True',
+        description='Use simulation clock'
     )
-
-    declare_rviz_config_file_cmd = DeclareLaunchArgument(
+    declare_rviz_config = DeclareLaunchArgument(
         'rviz_config_file',
         default_value=os.path.join(bringup_dir, 'rviz', 'nav2_default_view.rviz'),
-        description='Full path to the RVIZ config file to use',
+        description='RViz config file path'
+    )
+    declare_use_rviz = DeclareLaunchArgument(
+        'use_rviz', default_value='True',
+        description='Whether to start RViz'
+    )
+    declare_world = DeclareLaunchArgument(
+        'world', default_value=world_file,
+        description='Path to orchard world SDF'
     )
 
-    declare_use_rviz_cmd = DeclareLaunchArgument(
-        'use_rviz', default_value='True', description='Whether to start RVIZ'
+    # ==================== 读取URDF给robot_state_publisher ====================
+    with open(urdf_file, 'r') as f:
+        robot_description = f.read()
+
+    # ========== 1. 启动 Gazebo Sim (Fortress) ==========
+    # 使用 ros_gz_sim 的 GzSim action，替代 Classic 的 gazebo.launch.py
+    gz_sim = Node(
+        package='ros_gz_sim',
+        executable='gz_sim',
+        arguments=[
+            '-r',                    # headless rendering (server mode)
+            '-s',                    # server only (no GUI window)
+            '--render-engine', 'ogre2',
+            world_file,
+        ],
+        output='screen',
     )
 
-    declare_use_namespace_cmd = DeclareLaunchArgument(
-        'use_namespace',
-        default_value='false',
-        description='Whether to apply a namespace to the navigation stack',
-    )
-
-    declare_namespace_cmd = DeclareLaunchArgument(
-        'namespace', default_value='', description='Top-level namespace'
-    )
-
-    declare_world_cmd = DeclareLaunchArgument(
-        'world',
-        default_value=world_file,
-        description='Full path to orchard world model file to load',
-    )
-
-    # 读取机器人URDF（给robot_state_publisher用）
-    with open(urdf_file, 'r') as infp:
-        robot_description = infp.read()
-
-    # ========== 1. Gazebo（果园世界） ==========
-    gazebo = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([
-            PathJoinSubstitution([
-                FindPackageShare('gazebo_ros'),
-                'launch',
-                'gazebo.launch.py'
-            ])
-        ]),
-        launch_arguments={
-            'world': world_file,
-            'use_sim_time': use_sim_time,
-            'verbose': 'true'
-        }.items()
-    )
-
-    # ========== 2. Robot State Publisher ==========
-    start_robot_state_publisher_cmd = Node(
+    # ========== 2. Robot State Publisher (读取URDF发布TF) ==========
+    robot_state_pub = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
         name='robot_state_publisher',
         output='screen',
-        parameters=[
-            {'use_sim_time': use_sim_time,
-             'robot_description': robot_description}
-        ]
+        parameters=[{
+            'use_sim_time': use_sim_time,
+            'robot_description': robot_description,
+        }],
     )
 
-    # ========== 3. Spawn机器人到果园入口位置 ==========
-    # 果园入口在南围栏缺口处，机器人从(0, -12)附近进入
-    spawn_robot = Node(
-        package='gazebo_ros',
-        executable='spawn_entity.py',
-        arguments=[
-            '-entity', 'myrobotv5',
+    # ========== 3. Spawn 机器人到果园入口 ==========
+    # 使用 ros_gz_sim 的 create 工具，替代 gazebo_ros spawn_entity.py
+    spawn_robot = ExecuteProcess(
+        cmd=[
+            'ros2', 'run', 'ros_gz_sim', 'create',
             '-file', sdf_file,
-            '-x', '0.0',      # X: 果园西侧起始
-            '-y', '-12.0',     # Y: 靠近南围栏入口
-            '-z', '0.8',       # Z: 避免穿模
+            '-name', 'vehicle_blue',
+            '-x', '0.0',
+            '-y', '-12.0',
+            '-z', '0.8',
             '-R', '0.0',
             '-P', '0.0',
-            '-Y', '1.5707963'  # Yaw: 朝北（朝向果树方向）
+            '-Y', '1.5707963',
         ],
-        output='screen'
+        output='screen',
     )
 
-    # ========== 4. RViz ==========
-    rviz_cmd = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(os.path.join(launch_dir, 'rviz_launch.py')),
+    # 延迟5秒等Gazebo完全启动后再spawn
+    delayed_spawn = TimerAction(
+        period=5.0,
+        actions=[spawn_robot],
+    )
+
+    # ========== 4. ROS-GZ Bridge (核心！桥接ROS2和Gazebo话题) ==========
+    # 格式: <ros_topic>@<ros_msg_type>]<gz_topic>
+    # ] 表示 ROS -> Gazebo 方向
+
+    bridge_args = [
+        # --- 底盘控制：ROS /cmd_vel -> gz /cmd_vel ---
+        '/cmd_vel@geometry_msgs/msg/Twist]/cmd_vel',
+
+        # --- 激光雷达：gz /scan -> ROS /scan ---
+        '/scan[sensor_msgs/msg/LaserScan]@/scan',
+
+        # --- 关节状态：gz /joint_states -> ROS /joint_states ---
+        '/joint_states[sensor_msgs/msg/JointState]@/joint_states',
+
+        # --- 力传感器：gz /finger*_force -> ROS /finger*_force ---
+        '/finger1_force[geometry_msgs/msg/WrenchStamped]@/finger1_force',
+        '/finger2_force[geometry_msgs/msg/WrenchStamped]@/finger2_force',
+        '/finger3_force[geometry_msgs/msg/WrenchStamped]@/finger3_force',
+
+        # --- 机械臂位置控制：ROS /arm/*_cmd -> gz /*/cmd_pos ---
+        '/arm/lift_cmd@std_msgs/msg/Float64]/model/vehicle_blue/joint/platform_joint/cmd_pos',
+        '/arm/rot_cmd@std_msgs/msg/Float64]/model/vehicle_blue/joint/arm_rot_joint/cmd_pos',
+        '/arm/shoulder_cmd@std_msgs/msg/Float64]/model/vehicle_blue/joint/arm_upper_pitch_joint/cmd_pos',
+        '/arm/forearm_cmd@std_msgs/msg/Float64]/model/vehicle_blue/joint/arm_forearm_extend_joint/cmd_pos',
+        '/arm/wrist_cmd@std_msgs/msg/Float64]/model/vehicle_blue/joint/wrist_rotate_joint/cmd_pos',
+        '/arm/finger1_cmd@std_msgs/msg/Float64]/model/vehicle_blue/joint/finger1_joint/cmd_pos',
+        '/arm/finger2_cmd@std_msgs/msg/Float64]/model/vehicle_blue/joint/finger2_joint/cmd_pos',
+        '/arm/finger3_cmd@std_msgs/msg/Float64]/model/vehicle_blue/joint/finger3_joint/cmd_pos',
+
+        # --- 里程计：gz /odom -> ROS /odom ---
+        '/odom[nav_msgs/msg/Odometry]@/odom',
+
+        # --- TF树：gz /world/pose -> ROS /tf (scene broadcaster) ---
+        '/tf@tf2_msgs/msg/TFMessage]@/world/pose',
+        '/tf_static@tf2_msgs/msg/TFMessage]@/world/pose_static',
+    ]
+
+    parameter_bridge = Node(
+        package='ros_gz_bridge',
+        executable='parameter_bridge',
+        arguments=bridge_args,
+        output='screen',
+        parameters=[{'use_sim_time': use_sim_time}],
+    )
+
+    # ========== 5. RViz ==========
+    rviz_cmd = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        output='screen',
+        arguments=['-d', rviz_config_file],
         condition=IfCondition(use_rviz),
-        launch_arguments={
-            'namespace': LaunchConfiguration('namespace'),
-            'use_namespace': use_namespace,
-            'use_sim_time': use_sim_time,
-            'rviz_config': rviz_config_file,
-        }.items(),
+        parameters=[{'use_sim_time': use_sim_time}],
     )
 
     return LaunchDescription([
-        declare_world_cmd,
-        gazebo,
-        declare_robot_name_cmd,
-        declare_robot_sdf_cmd,
-        declare_namespace_cmd,
-        spawn_robot,
-        start_robot_state_publisher_cmd,
-        declare_use_rviz_cmd,
-        declare_use_namespace_cmd,
-        declare_rviz_config_file_cmd,
+        declare_use_sim_time,
+        declare_rviz_config,
+        declare_use_rviz,
+        declare_world,
+        gz_sim,
+        robot_state_pub,
+        delayed_spawn,
+        parameter_bridge,
         rviz_cmd,
     ])

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-果园采摘机械臂键盘控制脚本（完全按照PDF第5章 orchard_robot 关节定义）
+果园采摘机械臂键盘控制脚本（Gazebo Sim Fortress + ros_gz_bridge 架构）
 
-关节列表（与PDF SDF一致）：
+关节列表（与PDF第5章 SDF一致）：
   platform_joint         - 升降平台 (prismatic Z轴, 范围 0 ~ 0.8m)
   arm_rot_joint          - 手臂旋转 (revolute Z轴, 范围 -pi ~ pi)
   arm_upper_pitch_joint  - 大臂俯仰 (revolute Y轴, 范围 -0.785 ~ 1.57)
@@ -13,8 +13,8 @@
   finger2_joint          - 手指2/左手指 (revolute Y轴, 范围 -0.6 ~ 0.6)
   finger3_joint          - 手指3/上手指 (revolute Y轴, 范围 -0.6 ~ 0.6)
 
-控制话题格式（Gazebo Harmonic / gz-sim JointPositionController）:
-  /model/vehicle_blue/joint/{joint_name}/cmd_pos
+控制架构：
+  本脚本 -> ROS topic (/arm/*_cmd) -> parameter_bridge -> gz cmd_pos -> JointPositionController
 
 键盘映射：
   ┌─────────┬──────────┬──────────┬──────────┐
@@ -72,7 +72,7 @@ LIMITS = [
 HOME = [
     0.50,   # platform_joint            升降平台抬高 0.5m
     0.00,   # arm_rot_joint             旋转不转
-    -0.45,   # arm_upper_pitch_joint     大臂向上仰约 26°
+    -0.45,   # arm_upper_pitch_joint     大臂向上仰约 26deg
     0.15,   # arm_forearm_extend_joint  前臂伸出 0.15m
     0.30,   # wrist_rotate_joint        腕部略旋转
     0.25,   # finger1_joint             右手指张开
@@ -80,16 +80,16 @@ HOME = [
     0.25,   # finger3_joint             上手指张开
 ]
 
-# 每个关节的cmd_pos topic（gz-sim JointPositionController格式）
+# ROS 合法话题（由 parameter_bridge 桥接到 gz 的 cmd_pos）
 CMD_TOPICS = [
-    "/model/vehicle_blue/joint/platform_joint/cmd_pos",
-    "/model/vehicle_blue/joint/arm_rot_joint/cmd_pos",
-    "/model/vehicle_blue/joint/arm_upper_pitch_joint/cmd_pos",
-    "/model/vehicle_blue/joint/arm_forearm_extend_joint/cmd_pos",
-    "/model/vehicle_blue/joint/wrist_rotate_joint/cmd_pos",
-    "/model/vehicle_blue/joint/finger1_joint/cmd_pos",
-    "/model/vehicle_blue/joint/finger2_joint/cmd_pos",
-    "/model/vehicle_blue/joint/finger3_joint/cmd_pos",
+    "/arm/lift_cmd",      # -> /model/vehicle_blue/joint/platform_joint/cmd_pos
+    "/arm/rot_cmd",       # -> /model/vehicle_blue/joint/arm_rot_joint/cmd_pos
+    "/arm/shoulder_cmd",  # -> /model/vehicle_blue/joint/arm_upper_pitch_joint/cmd_pos
+    "/arm/forearm_cmd",   # -> /model/vehicle_blue/joint/arm_forearm_extend_joint/cmd_pos
+    "/arm/wrist_cmd",     # -> /model/vehicle_blue/joint/wrist_rotate_joint/cmd_pos
+    "/arm/finger1_cmd",   # -> /model/vehicle_blue/joint/finger1_joint/cmd_pos
+    "/arm/finger2_cmd",   # -> /model/vehicle_blue/joint/finger2_joint/cmd_pos
+    "/arm/finger3_cmd",   # -> /model/vehicle_blue/joint/finger3_joint/cmd_pos
 ]
 
 STEP_DEFAULT = 0.02
@@ -98,7 +98,7 @@ STEP_MAX = 0.50
 PUB_HZ = 50.0
 
 HELP = """
-================= ORCHARD ARM KEYBOARD TELEOP (PDF v5) ================
+================= ORCHARD ARM KEYBOARD TELEOP (Gazebo Sim Fortress) ================
   W / S   : shoulder up / down         (arm_upper_pitch_joint)
   A / D   : arm rotate left / right    (arm_rot_joint)
   Q / E   : wrist rotate left / right  (wrist_rotate_joint)
@@ -111,16 +111,16 @@ HELP = """
   [ / ]   : step -  / step +
   X       : quit     (Ctrl+C also quits)
   NOTE    : hold a key to move continuously (terminal key repeat)
-===================================================================="""
+============================================================================="""
 
 
 class ArmKeyboardTeleop(Node):
-    """机械臂键盘控制节点 - PDF orchard_robot 关节版 (gz-sim)"""
+    """机械臂键盘控制节点 - Gazebo Sim Fortress + bridge 架构"""
 
     def __init__(self):
         super().__init__("arm_keyboard_teleop")
 
-        # 为每个关节创建独立的Float64发布器（gz-sim JointPositionController）
+        # 为每个关节创建独立的Float64发布器（ROS合法topic，由bridge转发到gz）
         self.pubs = []
         for topic in CMD_TOPICS:
             self.pubs.append(self.create_publisher(Float64, topic, 10))
@@ -131,7 +131,7 @@ class ArmKeyboardTeleop(Node):
         self.timer = self.create_timer(1.0 / PUB_HZ, self.publish_cmd)
 
     def publish_cmd(self):
-        """50Hz发布各关节位置到gz-sim cmd_pos话题"""
+        """50Hz发布各关节位置到ROS topic（由parameter_bridge桥转到gz cmd_pos）"""
         for i, pub in enumerate(self.pubs):
             msg = Float64()
             msg.data = float(self.target[i])
