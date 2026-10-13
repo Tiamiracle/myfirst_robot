@@ -941,7 +941,7 @@
         <p_gain>100</p_gain>
         <i_gain>0</i_gain>
         <d_gain>10</d_gain>
-        <cmd_topic>/model/vehicle_blue/joint/platform_joint/0/cmd_pos</cmd_topic>
+        <cmd_topic>/model/vehicle_blue/joint/platform_joint/cmd_pos</cmd_topic>
     </plugin>
 
     <!-- 手臂旋转位置控制器 P=100, I=0, D=10 -->
@@ -952,7 +952,7 @@
         <p_gain>100</p_gain>
         <i_gain>0</i_gain>
         <d_gain>10</d_gain>
-        <cmd_topic>/model/vehicle_blue/joint/arm_rot_joint/0/cmd_pos</cmd_topic>
+        <cmd_topic>/model/vehicle_blue/joint/arm_rot_joint/cmd_pos</cmd_topic>
     </plugin>
 
     <!-- 大臂俯仰位置控制器 P=150, I=0, D=15 -->
@@ -963,7 +963,7 @@
         <p_gain>150</p_gain>
         <i_gain>0</i_gain>
         <d_gain>15</d_gain>
-        <cmd_topic>/model/vehicle_blue/joint/arm_upper_pitch_joint/0/cmd_pos</cmd_topic>
+        <cmd_topic>/model/vehicle_blue/joint/arm_upper_pitch_joint/cmd_pos</cmd_topic>
     </plugin>
 
     <!-- 前臂伸缩位置控制器 P=50, I=0, D=5 -->
@@ -974,7 +974,7 @@
         <p_gain>50</p_gain>
         <i_gain>0</i_gain>
         <d_gain>5</d_gain>
-        <cmd_topic>/model/vehicle_blue/joint/arm_forearm_extend_joint/0/cmd_pos</cmd_topic>
+        <cmd_topic>/model/vehicle_blue/joint/arm_forearm_extend_joint/cmd_pos</cmd_topic>
     </plugin>
 
     <!-- 腕部旋转位置控制器 P=50, I=0, D=5 -->
@@ -985,7 +985,7 @@
         <p_gain>50</p_gain>
         <i_gain>0</i_gain>
         <d_gain>5</d_gain>
-        <cmd_topic>/model/vehicle_blue/joint/wrist_rotate_joint/0/cmd_pos</cmd_topic>
+        <cmd_topic>/model/vehicle_blue/joint/wrist_rotate_joint/cmd_pos</cmd_topic>
     </plugin>
 
     <!-- 手指1位置控制器 P=30, I=0, D=3 -->
@@ -996,7 +996,7 @@
         <p_gain>30</p_gain>
         <i_gain>0</i_gain>
         <d_gain>3</d_gain>
-        <cmd_topic>/model/vehicle_blue/joint/finger1_joint/0/cmd_pos</cmd_topic>
+        <cmd_topic>/model/vehicle_blue/joint/finger1_joint/cmd_pos</cmd_topic>
     </plugin>
 
     <!-- 手指2位置控制器 P=30, I=0, D=3 -->
@@ -1007,7 +1007,7 @@
         <p_gain>30</p_gain>
         <i_gain>0</i_gain>
         <d_gain>3</d_gain>
-        <cmd_topic>/model/vehicle_blue/joint/finger2_joint/0/cmd_pos</cmd_topic>
+        <cmd_topic>/model/vehicle_blue/joint/finger2_joint/cmd_pos</cmd_topic>
     </plugin>
 
     <!-- 手指3位置控制器 P=30, I=0, D=3 -->
@@ -1018,7 +1018,7 @@
         <p_gain>30</p_gain>
         <i_gain>0</i_gain>
         <d_gain>3</d_gain>
-        <cmd_topic>/model/vehicle_blue/joint/finger3_joint/0/cmd_pos</cmd_topic>
+        <cmd_topic>/model/vehicle_blue/joint/finger3_joint/cmd_pos</cmd_topic>
     </plugin>
 
     <!-- 力/力矩传感器系统插件 -->

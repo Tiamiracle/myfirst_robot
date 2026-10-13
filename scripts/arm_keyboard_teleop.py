@@ -14,7 +14,7 @@
   finger3_joint          - 手指3/上手指 (revolute Y轴, 范围 -0.6 ~ 0.6)
 
 控制话题格式（Gazebo Harmonic / gz-sim JointPositionController）:
-  /model/vehicle_blue/joint/{joint_name}/0/cmd_pos
+  /model/vehicle_blue/joint/{joint_name}/cmd_pos
 
 键盘映射：
   ┌─────────┬──────────┬──────────┬──────────┐
@@ -69,18 +69,27 @@ LIMITS = [
     (-0.6, 0.6),          # finger3_joint: -0.6 ~ 0.6 rad
 ]
 
-HOME = [0.0] * len(JOINTS)
+HOME = [
+    0.50,   # platform_joint            升降平台抬高 0.5m
+    0.00,   # arm_rot_joint             旋转不转
+    -0.45,   # arm_upper_pitch_joint     大臂向上仰约 26°
+    0.15,   # arm_forearm_extend_joint  前臂伸出 0.15m
+    0.30,   # wrist_rotate_joint        腕部略旋转
+    0.25,   # finger1_joint             右手指张开
+    0.25,   # finger2_joint             左手指张开
+    0.25,   # finger3_joint             上手指张开
+]
 
 # 每个关节的cmd_pos topic（gz-sim JointPositionController格式）
 CMD_TOPICS = [
-    "/model/vehicle_blue/joint/platform_joint/0/cmd_pos",
-    "/model/vehicle_blue/joint/arm_rot_joint/0/cmd_pos",
-    "/model/vehicle_blue/joint/arm_upper_pitch_joint/0/cmd_pos",
-    "/model/vehicle_blue/joint/arm_forearm_extend_joint/0/cmd_pos",
-    "/model/vehicle_blue/joint/wrist_rotate_joint/0/cmd_pos",
-    "/model/vehicle_blue/joint/finger1_joint/0/cmd_pos",
-    "/model/vehicle_blue/joint/finger2_joint/0/cmd_pos",
-    "/model/vehicle_blue/joint/finger3_joint/0/cmd_pos",
+    "/model/vehicle_blue/joint/platform_joint/cmd_pos",
+    "/model/vehicle_blue/joint/arm_rot_joint/cmd_pos",
+    "/model/vehicle_blue/joint/arm_upper_pitch_joint/cmd_pos",
+    "/model/vehicle_blue/joint/arm_forearm_extend_joint/cmd_pos",
+    "/model/vehicle_blue/joint/wrist_rotate_joint/cmd_pos",
+    "/model/vehicle_blue/joint/finger1_joint/cmd_pos",
+    "/model/vehicle_blue/joint/finger2_joint/cmd_pos",
+    "/model/vehicle_blue/joint/finger3_joint/cmd_pos",
 ]
 
 STEP_DEFAULT = 0.02
