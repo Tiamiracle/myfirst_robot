@@ -15,7 +15,7 @@
       <geometry>
         <box size="0.667 0.333 0.167" />
       </geometry>
-      <material>
+      <material name="blue">
         <color rgba="0.00000392 0.00000392 1 1"/>
       </material>
     </visual>
@@ -38,7 +38,7 @@
       <geometry>
         <cylinder radius="0.133" length="0.067" />
       </geometry>
-      <material>
+      <material name="red">
         <color rgba="1 0.00000392 0.00000392 1"/>
       </material>
     </visual>
@@ -61,7 +61,7 @@
       <geometry>
         <cylinder radius="0.133" length="0.067" />
       </geometry>
-      <material>
+      <material name="red">
         <color rgba="1 0.00000392 0.00000392 1"/>
       </material>
     </visual>
@@ -84,7 +84,7 @@
       <geometry>
         <cylinder radius="0.13" length="0.01" />
       </geometry>
-      <material>
+      <material name="gray">
         <color rgba="0.50196471 0.50196471 0.50196471 1"/>
       </material>
     </visual>
@@ -107,7 +107,7 @@
       <geometry>
         <cylinder radius="0.01" length="0.3" />
       </geometry>
-      <material>
+      <material name="black">
         <color rgba="0 0 0 0.8"/>
       </material>
     </visual>
@@ -130,7 +130,7 @@
       <geometry>
         <cylinder radius="0.02" length="0.05" />
       </geometry>
-      <material>
+      <material name="black">
         <color rgba="0 0 0 0.8"/>
       </material>
     </visual>
@@ -199,7 +199,7 @@
     <visual>
       <origin xyz="0 0 0.1" rpy="0 0 0" />
       <geometry><box size="0.12 0.12 0.2" /></geometry>
-      <material><color rgba="0.30196471 0.30196471 0.30196471 1"/></material>
+      <material name="dark_gray"><color rgba="0.30196471 0.30196471 0.30196471 1"/></material>
     </visual>
     <collision>
       <origin xyz="0 0 0.1" rpy="0 0 0" />
@@ -217,7 +217,7 @@
     <visual>
       <origin xyz="0 0 0.6" rpy="0 0 0" />
       <geometry><box size="0.08 0.08 1" /></geometry>
-      <material><color rgba="0.20000392 0.60000392 0.80000392 1"/></material>
+      <material name="blue_light"><color rgba="0.20000392 0.60000392 0.80000392 1"/></material>
     </visual>
     <collision>
       <origin xyz="0 0 0.6" rpy="0 0 0" />
@@ -235,7 +235,7 @@
     <visual>
       <origin xyz="0 0 0.04" rpy="0 0 0" />
       <geometry><box size="0.3 0.25 0.08" /></geometry>
-      <material><color rgba="0.10196471 0.70196471 0.40000392 1"/></material>
+      <material name="green"><color rgba="0.10196471 0.70196471 0.40000392 1"/></material>
     </visual>
     <collision>
       <origin xyz="0 0 0.04" rpy="0 0 0" />
@@ -253,7 +253,7 @@
     <visual>
       <origin xyz="0 0 0.045" rpy="0 0 0" />
       <geometry><cylinder radius="0.07" length="0.09" /></geometry>
-      <material><color rgba="0.60000392 0.60000392 0.60000392 1"/></material>
+      <material name="arm_gray"><color rgba="0.60000392 0.60000392 0.60000392 1"/></material>
     </visual>
     <collision>
       <origin xyz="0 0 0.045" rpy="0 0 0" />
@@ -271,7 +271,7 @@
     <visual>
       <origin xyz="0 0 0.20" rpy="0 0 0" />
       <geometry><box size="0.4 0.06 0.06" /></geometry>
-      <material><color rgba="0.94902353 0.94118039 0.90980784 1"/></material>
+      <material name="white"><color rgba="0.94902353 0.94118039 0.90980784 1"/></material>
     </visual>
     <collision>
       <origin xyz="0 0 0.20" rpy="0 0 0" />
@@ -289,7 +289,7 @@
     <visual>
       <origin xyz="0.15 0 0" rpy="0 0 0" />
       <geometry><box size="0.3 0.05 0.05" /></geometry>
-      <material><color rgba="0.94902353 0.94118039 0.90980784 1"/></material>
+      <material name="white"><color rgba="0.94902353 0.94118039 0.90980784 1"/></material>
     </visual>
     <collision>
       <origin xyz="0.15 0 0" rpy="0 0 0" />
@@ -307,7 +307,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry><box size="0.08 0.08 0.08" /></geometry>
-      <material><color rgba="0.94902353 0.94118039 0.90980784 1"/></material>
+      <material name="white"><color rgba="0.94902353 0.94118039 0.90980784 1"/></material>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
@@ -325,7 +325,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry><box size="0.05 0.15 0.15" /></geometry>
-      <material><color rgba="0.94902353 0.94118039 0.90980784 1"/></material>
+      <material name="white"><color rgba="0.94902353 0.94118039 0.90980784 1"/></material>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
@@ -343,7 +343,7 @@
     <visual>
       <origin xyz="0.1 0 0" rpy="0 0 0" />
       <geometry><box size="0.1 0.02 0.02" /></geometry>
-      <material><color rgba="0.94902353 0.94118039 0.90980784 1"/></material>
+      <material name="white"><color rgba="0.94902353 0.94118039 0.90980784 1"/></material>
     </visual>
     <collision>
       <origin xyz="0.1 0 0" rpy="0 0 0" />
@@ -361,7 +361,7 @@
     <visual>
       <origin xyz="0.1 0 0" rpy="0 0 0" />
       <geometry><box size="0.1 0.02 0.02" /></geometry>
-      <material><color rgba="0.94902353 0.94118039 0.90980784 1"/></material>
+      <material name="white"><color rgba="0.94902353 0.94118039 0.90980784 1"/></material>
     </visual>
     <collision>
       <origin xyz="0.1 0 0" rpy="0 0 0" />
@@ -379,7 +379,7 @@
     <visual>
       <origin xyz="0.1 0 0" rpy="0 0 0" />
       <geometry><box size="0.1 0.02 0.02" /></geometry>
-      <material><color rgba="0.94902353 0.94118039 0.90980784 1"/></material>
+      <material name="white"><color rgba="0.94902353 0.94118039 0.90980784 1"/></material>
     </visual>
     <collision>
       <origin xyz="0.1 0 0" rpy="0 0 0" />
