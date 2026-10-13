@@ -333,286 +333,692 @@
     </plugin>
 
     <!-- ============================================================ -->
-    <!-- 4-DOF 吸盘机械臂（挂在 base_link 顶部，自建几何体） -->
-    <!-- 关节角为 0 时整臂竖直朝上；关节轴必须 -->
-    <!-- use_parent_model_frame=false，否则肘/腕轴不随大臂旋转       -->
+    <!-- 果园采摘机械臂（完全按照PDF第5章 orchard_robot 定义）       -->
+    <!-- 结构: lift_base -> lift_slide -> lift_platform(升降)         -->
+    <!--     -> arm_rot_base(旋转) -> arm_upper_link(大臂俯仰)        -->
+    <!--     -> arm_extend_forearm(前臂伸缩X轴) -> arm_wrist_rot(腕部旋转) -->
+    <!--     -> gripper_base -> finger_1/2/3 (三指夹爪)               -->
     <!-- ============================================================ -->
 
-    <link name="arm_yaw_link">
-      <pose>-0.15 0 0.0835 0 0 0</pose>
-      <visual name="arm_yaw_visual">
+    <!-- ========== 1. 升降机构基座 ========= -->
+    <link name="lift_base">
+      <pose>-0.25 0 0.167 0 0 0</pose>
+      <visual name="lift_base_visual_0">
         <geometry>
-          <cylinder>
-            <radius>0.04</radius>
-            <length>0.10</length>
-          </cylinder>
+          <box>
+            <size>0.12 0.12 0.2</size>
+          </box>
         </geometry>
         <material>
-          <name>gray</name>
-          <ambient>0.5 0.5 0.5 1</ambient>
-          <diffuse>0.5 0.5 0.5 1</diffuse>
+          <ambient>0.30196471 0.30196471 0.30196471 1.00000000</ambient>
+          <diffuse>0.30196471 0.30196471 0.30196471 1.00000000</diffuse>
         </material>
       </visual>
-      <collision name="arm_yaw_col">
-        <pose>0 0 0.05 0 0 0</pose>
+      <collision name="lift_base_collision_0">
         <geometry>
-          <cylinder>
-            <radius>0.04</radius>
-            <length>0.10</length>
-          </cylinder>
+          <box>
+            <size>0.12 0.12 0.2</size>
+          </box>
         </geometry>
       </collision>
       <inertial>
-        <mass>0.6</mass>
+        <mass>1.2</mass>
         <inertia>
-          <ixx>0.00074</ixx>
+          <ixx>0.004</ixx>
           <ixy>0</ixy>
           <ixz>0</ixz>
-          <iyy>0.00074</iyy>
+          <iyy>0.004</iyy>
           <iyz>0</iyz>
-          <izz>0.00048</izz>
+          <izz>0.004</izz>
         </inertia>
       </inertial>
     </link>
 
-    <link name="upper_arm_link">
-      <pose>-0.15 0 0.1835 0 0 0</pose>
-      <visual name="upper_visual">
-        <pose>0 0 0.30 0 0 0</pose>
+    <!-- ========== 2. 升降滑轨 ========= -->
+    <link name="lift_slide">
+      <visual name="lift_slide_visual_0">
+        <pose>0 0 0.6 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.08 0.08 1</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.20000392 0.60000392 0.80000392 1.00000000</ambient>
+          <diffuse>0.20000392 0.60000392 0.80000392 1.00000000</diffuse>
+        </material>
+      </visual>
+      <collision name="lift_slide_collision_0">
+        <pose>0 0 0.6 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.08 0.08 1.2</size>
+          </box>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass>2</mass>
+        <inertia>
+          <ixx>0.28</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.28</iyy>
+          <iyz>0</iyz>
+          <izz>0.002</izz>
+        </inertia>
+      </inertial>
+    </link>
+
+    <!-- ========== 3. 升降平台 ========= -->
+    <link name="lift_platform">
+      <pose>0 0 0.333 0 0 0</pose>
+      <visual name="lift_platform_visual_0">
+        <geometry>
+          <box>
+            <size>0.3 0.25 0.08</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.10196471 0.70196471 0.40000392 1.00000000</ambient>
+          <diffuse>0.10196471 0.70196471 0.40000392 1.00000000</diffuse>
+        </material>
+      </visual>
+      <collision name="lift_platform_collision_0">
+        <geometry>
+          <box>
+            <size>0.3 0.25 0.08</size>
+          </box>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.006</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.009</iyy>
+          <iyz>0</iyz>
+          <izz>0.011</izz>
+        </inertia>
+      </inertial>
+    </link>
+
+    <!-- ========== 4. 手臂旋转基座 ========= -->
+    <link name="arm_rot_base">
+      <pose>0 0 0.448 0 0 0</pose>
+      <visual name="arm_rot_base_visual_0">
         <geometry>
           <cylinder>
-            <radius>0.035</radius>
-            <length>0.60</length>
+            <radius>0.07</radius>
+            <length>0.09</length>
           </cylinder>
         </geometry>
         <material>
-          <name>orange</name>
-          <ambient>1 0.5 0 1</ambient>
-          <diffuse>1 0.5 0 1</diffuse>
+          <ambient>0.60000392 0.60000392 0.60000392 1.00000000</ambient>
+          <diffuse>0.60000392 0.60000392 0.60000392 1.00000000</diffuse>
         </material>
       </visual>
-      <collision name="upper_col">
-        <pose>0 0 0.30 0 0 0</pose>
+      <collision name="arm_rot_base_collision_0">
         <geometry>
           <cylinder>
-            <radius>0.035</radius>
-            <length>0.60</length>
+            <radius>0.07</radius>
+            <length>0.09</length>
           </cylinder>
         </geometry>
       </collision>
       <inertial>
         <mass>0.8</mass>
         <inertia>
-          <ixx>0.024245</ixx>
+          <ixx>0.0012</ixx>
           <ixy>0</ixy>
           <ixz>0</ixz>
-          <iyy>0.024245</iyy>
+          <iyy>0.0012</iyy>
           <iyz>0</iyz>
-          <izz>0.00049</izz>
+          <izz>0.0018</izz>
         </inertia>
       </inertial>
     </link>
 
-    <link name="forearm_link">
-      <pose>-0.15 0 0.7835 0 0 0</pose>
-      <visual name="fore_visual">
-        <pose>0 0 0.30 0 0 0</pose>
+    <!-- ========== 5. 大臂 ========= -->
+    <link name="arm_upper_link">
+      <pose>0 0 0.423 0 0 0</pose>
+      <visual name="arm_upper_link_visual_0">
         <geometry>
-          <cylinder>
-            <radius>0.03</radius>
-            <length>0.60</length>
-          </cylinder>
+          <box>
+            <size>0.4 0.06 0.06</size>
+          </box>
         </geometry>
         <material>
-          <name>orange</name>
-          <ambient>1 0.5 0 1</ambient>
-          <diffuse>1 0.5 0 1</diffuse>
+          <ambient>0.94902353 0.94118039 0.90980784 1.00000000</ambient>
+          <diffuse>0.94902353 0.94118039 0.90980784 1.00000000</diffuse>
         </material>
       </visual>
-      <collision name="fore_col">
-        <pose>0 0 0.30 0 0 0</pose>
+      <collision name="arm_upper_link_collision_0">
         <geometry>
-          <cylinder>
-            <radius>0.03</radius>
-            <length>0.60</length>
-          </cylinder>
+          <box>
+            <size>0.4 0.06 0.06</size>
+          </box>
         </geometry>
       </collision>
       <inertial>
-        <mass>0.6</mass>
+        <mass>0.7</mass>
         <inertia>
-          <ixx>0.018135</ixx>
+          <ixx>0.0004</ixx>
           <ixy>0</ixy>
           <ixz>0</ixz>
-          <iyy>0.018135</iyy>
+          <iyy>0.0092</iyy>
           <iyz>0</iyz>
-          <izz>0.00027</izz>
+          <izz>0.0092</izz>
         </inertia>
       </inertial>
     </link>
 
-    <link name="wrist_link">
-      <pose>-0.15 0 1.3835 0 0 0</pose>
-      <visual name="wrist_visual">
-        <pose>0 0 0.10 0 0 0</pose>
+    <!-- ========== 6. 伸缩前臂 ========= -->
+    <link name="arm_extend_forearm">
+      <pose>0 0 0.363 0 0 0</pose>
+      <visual name="arm_extend_forearm_visual_0">
         <geometry>
-          <cylinder>
-            <radius>0.025</radius>
-            <length>0.20</length>
-          </cylinder>
+          <box>
+            <size>0.3 0.05 0.05</size>
+          </box>
         </geometry>
         <material>
-          <name>gray</name>
-          <ambient>0.4 0.4 0.4 1</ambient>
-          <diffuse>0.4 0.4 0.4 1</diffuse>
+          <ambient>0.94902353 0.94118039 0.90980784 1.00000000</ambient>
+          <diffuse>0.94902353 0.94118039 0.90980784 1.00000000</diffuse>
         </material>
       </visual>
-      <collision name="wrist_col">
-        <pose>0 0 0.10 0 0 0</pose>
+      <collision name="arm_extend_forearm_collision_0">
         <geometry>
-          <cylinder>
-            <radius>0.025</radius>
-            <length>0.20</length>
-          </cylinder>
+          <box>
+            <size>0.3 0.05 0.05</size>
+          </box>
         </geometry>
       </collision>
       <inertial>
-        <mass>0.25</mass>
+        <mass>0.5</mass>
         <inertia>
-          <ixx>0.000872</ixx>
+          <ixx>0.0003</ixx>
           <ixy>0</ixy>
           <ixz>0</ixz>
-          <iyy>0.000872</iyy>
+          <iyy>0.0038</iyy>
           <iyz>0</iyz>
-          <izz>0.000078</izz>
+          <izz>0.0038</izz>
         </inertia>
       </inertial>
     </link>
 
-    <link name="suction_cup_link">
-      <pose>-0.15 0 1.5835 0 0 0</pose>
-      <visual name="cup_visual">
-        <pose>0 0 0.025 0 0 0</pose>
+    <!-- ========== 7. 腕部旋转 ========= -->
+    <link name="arm_wrist_rot">
+      <pose>0.18 0 0.363 0 0 0</pose>
+      <visual name="arm_wrist_rot_visual_0">
         <geometry>
-          <cylinder>
-            <radius>0.06</radius>
-            <length>0.05</length>
-          </cylinder>
+          <box>
+            <size>0.08 0.08 0.08</size>
+          </box>
         </geometry>
         <material>
-          <name>black</name>
-          <ambient>0.1 0.1 0.1 1</ambient>
-          <diffuse>0.1 0.1 0.1 1</diffuse>
+          <ambient>0.94902353 0.94118039 0.90980784 1.00000000</ambient>
+          <diffuse>0.94902353 0.94118039 0.90980784 1.00000000</diffuse>
         </material>
       </visual>
-      <collision name="cup_col">
-        <pose>0 0 0.025 0 0 0</pose>
+      <collision name="arm_wrist_rot_collision_0">
         <geometry>
-          <cylinder>
-            <radius>0.06</radius>
-            <length>0.05</length>
-          </cylinder>
+          <box>
+            <size>0.08 0.08 0.08</size>
+          </box>
         </geometry>
       </collision>
       <inertial>
-        <mass>0.1</mass>
+        <mass>0.3</mass>
         <inertia>
-          <ixx>0.000111</ixx>
+          <ixx>0.0001</ixx>
           <ixy>0</ixy>
           <ixz>0</ixz>
-          <iyy>0.000111</iyy>
+          <iyy>0.0001</iyy>
           <iyz>0</iyz>
-          <izz>0.00018</izz>
+          <izz>0.0001</izz>
         </inertia>
       </inertial>
     </link>
 
-    <!-- 关节原点 = 子 link 的 model pose（沿用现有 diff-drive 模型风格） -->
-    <joint name="joint1_base_yaw" type="revolute">
+    <!-- ========== 8. 夹爪基座 ========= -->
+    <link name="gripper_base">
+      <pose>0.24 0 0.363 -3.1415926 0 -3.1415926</pose>
+      <visual name="gripper_base_visual_0">
+        <geometry>
+          <box>
+            <size>0.05 0.15 0.15</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.94902353 0.94118039 0.90980784 1.00000000</ambient>
+          <diffuse>0.94902353 0.94118039 0.90980784 1.00000000</diffuse>
+        </material>
+      </visual>
+      <collision name="gripper_base_collision_0">
+        <geometry>
+          <box>
+            <size>0.05 0.15 0.15</size>
+          </box>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass>0.2</mass>
+        <inertia>
+          <ixx>0.00005</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.00005</iyy>
+          <iyz>0</iyz>
+          <izz>0.00008</izz>
+        </inertia>
+      </inertial>
+    </link>
+
+    <!-- ========== 9. 手指1 (右侧手指) ========= -->
+    <link name="finger_1">
+      <pose>0.22 0.04 0.293 0 0 0</pose>
+      <visual name="finger_1_visual_0">
+        <pose>0.1 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1 0.02 0.02</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.94902353 0.94118039 0.90980784 1.00000000</ambient>
+          <diffuse>0.94902353 0.94118039 0.90980784 1.00000000</diffuse>
+        </material>
+      </visual>
+      <collision name="finger_1_collision_0">
+        <pose>0.1 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1 0.02 0.02</size>
+          </box>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.000002</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.000008</iyy>
+          <iyz>0</iyz>
+          <izz>0.000008</izz>
+        </inertia>
+      </inertial>
+    </link>
+
+    <!-- ========== 10. 手指2 (左侧手指) ========= -->
+    <link name="finger_2">
+      <pose>0.22 -0.04 0.293 0 0 0</pose>
+      <visual name="finger_2_visual_0">
+        <pose>0.1 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1 0.02 0.02</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.94902353 0.94118039 0.90980784 1.00000000</ambient>
+          <diffuse>0.94902353 0.94118039 0.90980784 1.00000000</diffuse>
+        </material>
+      </visual>
+      <collision name="finger_2_collision_0">
+        <pose>0.1 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1 0.02 0.02</size>
+          </box>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.000002</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.000008</iyy>
+          <iyz>0</iyz>
+          <izz>0.000008</izz>
+        </inertia>
+      </inertial>
+    </link>
+
+    <!-- ========== 11. 手指3 (上方手指) ========= -->
+    <link name="finger_3">
+      <pose>0.22 0 0.413 0 0 0</pose>
+      <visual name="finger_3_visual_0">
+        <pose>0.1 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1 0.02 0.02</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.94902353 0.94118039 0.90980784 1.00000000</ambient>
+          <diffuse>0.94902353 0.94118039 0.90980784 1.00000000</diffuse>
+        </material>
+      </visual>
+      <collision name="finger_3_collision_0">
+        <pose>0.1 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1 0.02 0.02</size>
+          </box>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.000002</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.000008</iyy>
+          <iyz>0</iyz>
+          <izz>0.000008</izz>
+        </inertia>
+      </inertial>
+    </link>
+
+    <!-- ==================== 关节定义（按PDF第5章） ==================== -->
+
+    <!-- 升降基座固定关节 -->
+    <joint name="lift_base_joint" type="fixed">
       <parent>base_link</parent>
-      <child>arm_yaw_link</child>
+      <child>lift_base</child>
+    </joint>
+
+    <!-- 滑轨固定关节 -->
+    <joint name="lift_slide_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>lift_slide</child>
+    </joint>
+
+    <!-- 升降平台关节 (prismatic, Z轴, 范围0~0.8m) -->
+    <joint name="platform_joint" type="prismatic">
+      <parent>lift_slide</parent>
+      <child>lift_platform</child>
       <axis>
         <xyz>0 0 1</xyz>
         <use_parent_model_frame>false</use_parent_model_frame>
         <limit>
-          <lower>-1.5708</lower>
-          <upper>1.5708</upper>
-          <effort>50</effort>
-          <velocity>5</velocity>
+          <lower>0</lower>
+          <upper>0.8</upper>
+          <effort>200</effort>
+          <velocity>0.3</velocity>
         </limit>
       </axis>
     </joint>
 
-    <joint name="joint2_shoulder_pitch" type="revolute">
-      <parent>arm_yaw_link</parent>
-      <child>upper_arm_link</child>
+    <!-- 手臂旋转关节 (revolute, Z轴, 范围-π~π) -->
+    <joint name="arm_rot_joint" type="revolute">
+      <parent>lift_platform</parent>
+      <child>arm_rot_base</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <use_parent_model_frame>false</use_parent_model_frame>
+        <limit>
+          <lower>-3.14</lower>
+          <upper>3.14</upper>
+          <effort>150</effort>
+          <velocity>1.2</velocity>
+        </limit>
+      </axis>
+    </joint>
+
+    <!-- 大臂俯仰关节 (revolute, Y轴, 范围-0.785~1.57) -->
+    <joint name="arm_upper_pitch_joint" type="revolute">
+      <parent>arm_rot_base</parent>
+      <child>arm_upper_link</child>
       <axis>
         <xyz>0 1 0</xyz>
         <use_parent_model_frame>false</use_parent_model_frame>
         <limit>
-          <lower>-1.5</lower>
-          <upper>1.5</upper>
-          <effort>50</effort>
-          <velocity>5</velocity>
+          <lower>-0.785</lower>
+          <upper>1.57</upper>
+          <effort>120</effort>
+          <velocity>1</velocity>
         </limit>
       </axis>
     </joint>
 
-    <joint name="joint3_elbow_pitch" type="revolute">
-      <parent>upper_arm_link</parent>
-      <child>forearm_link</child>
+    <!-- 前臂伸缩关节 (prismatic, X轴, 范围0~0.3m) -->
+    <joint name="arm_forearm_extend_joint" type="prismatic">
+      <parent>arm_upper_link</parent>
+      <child>arm_extend_forearm</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <use_parent_model_frame>false</use_parent_model_frame>
+        <limit>
+          <lower>0</lower>
+          <upper>0.3</upper>
+          <effort>80</effort>
+          <velocity>0.25</velocity>
+        </limit>
+      </axis>
+    </joint>
+
+    <!-- 腕部旋转关节 (revolute, X轴, 范围-1.57~1.57) -->
+    <joint name="wrist_rotate_joint" type="revolute">
+      <parent>arm_extend_forearm</parent>
+      <child>arm_wrist_rot</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <use_parent_model_frame>false</use_parent_model_frame>
+        <limit>
+          <lower>-1.57</lower>
+          <upper>1.57</upper>
+          <effort>40</effort>
+          <velocity>1.5</velocity>
+        </limit>
+      </axis>
+    </joint>
+
+    <!-- 夹爪基座固定关节 -->
+    <joint name="gripper_fixed_joint" type="fixed">
+      <parent>arm_wrist_rot</parent>
+      <child>gripper_base</child>
+    </joint>
+
+    <!-- 手指1关节 (revolute, Y轴, 带力传感器) -->
+    <joint name="finger1_joint" type="revolute">
+      <parent>gripper_base</parent>
+      <child>finger_1</child>
       <axis>
         <xyz>0 1 0</xyz>
         <use_parent_model_frame>false</use_parent_model_frame>
         <limit>
-          <lower>-1.2</lower>
-          <upper>1.2</upper>
-          <effort>50</effort>
-          <velocity>5</velocity>
+          <lower>-0.6</lower>
+          <upper>0.6</upper>
+          <effort>15</effort>
+          <velocity>2</velocity>
         </limit>
       </axis>
+      <sensor name="finger1_force" type="force_torque">
+        <update_rate>1</update_rate>
+        <enable>true</enable>
+        <topic>/finger1_force</topic>
+        <force_torque>
+          <measure_direction>child_to_parent</measure_direction>
+        </force_torque>
+        <visualize>true</visualize>
+      </sensor>
     </joint>
 
-    <joint name="joint4_wrist_pitch" type="revolute">
-      <parent>forearm_link</parent>
-      <child>wrist_link</child>
+    <!-- 手指2关节 (revolute, Y轴, 带力传感器) -->
+    <joint name="finger2_joint" type="revolute">
+      <parent>gripper_base</parent>
+      <child>finger_2</child>
       <axis>
         <xyz>0 1 0</xyz>
         <use_parent_model_frame>false</use_parent_model_frame>
         <limit>
-          <lower>-1.0</lower>
-          <upper>1.0</upper>
-          <effort>50</effort>
-          <velocity>5</velocity>
+          <lower>-0.6</lower>
+          <upper>0.6</upper>
+          <effort>15</effort>
+          <velocity>2</velocity>
         </limit>
       </axis>
+      <sensor name="finger2_force" type="force_torque">
+        <update_rate>1</update_rate>
+        <enable>true</enable>
+        <topic>/finger2_force</topic>
+        <force_torque>
+          <measure_direction>child_to_parent</measure_direction>
+        </force_torque>
+        <visualize>true</visualize>
+      </sensor>
     </joint>
 
-    <joint name="suction_fixed_joint" type="fixed">
-      <parent>wrist_link</parent>
-      <child>suction_cup_link</child>
+    <!-- 手指3关节 (revolute, Y轴, 带力传感器) -->
+    <joint name="finger3_joint" type="revolute">
+      <parent>gripper_base</parent>
+      <child>finger_3</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <use_parent_model_frame>false</use_parent_model_frame>
+        <limit>
+          <lower>-0.6</lower>
+          <upper>0.6</upper>
+          <effort>15</effort>
+          <velocity>2</velocity>
+        </limit>
+      </axis>
+      <sensor name="finger3_force" type="force_torque">
+        <update_rate>1</update_rate>
+        <enable>true</enable>
+        <topic>/finger3_force</topic>
+        <force_torque>
+          <measure_direction>child_to_parent</measure_direction>
+        </force_torque>
+        <visualize>true</visualize>
+      </sensor>
     </joint>
 
-    <!-- 发布 4 个臂关节状态到 /joint_states，供 robot_state_publisher 播 TF -->
-    <plugin name="arm_joint_state_publisher" filename="libgazebo_ros_joint_state_publisher.so">
-      <ros>
-        <namespace></namespace>
-      </ros>
-      <update_rate>50</update_rate>
-      <joint_name>joint1_base_yaw</joint_name>
-      <joint_name>joint2_shoulder_pitch</joint_name>
-      <joint_name>joint3_elbow_pitch</joint_name>
-      <joint_name>joint4_wrist_pitch</joint_name>
+    <!-- ==================== Gazebo 插件（按PDF第5.3节） ==================== -->
+
+    <!-- 关节状态发布器 -->
+    <plugin filename="gz-sim-joint-state-publisher-system"
+             name="gz::sim::systems::JointStatePublisher">
+        <joint_name>left_wheel_joint</joint_name>
+        <joint_name>right_wheel_joint</joint_name>
+        <joint_name>platform_joint</joint_name>
+        <joint_name>arm_rot_joint</joint_name>
+        <joint_name>arm_upper_pitch_joint</joint_name>
+        <joint_name>arm_forearm_extend_joint</joint_name>
+        <joint_name>wrist_rotate_joint</joint_name>
+        <joint_name>finger1_joint</joint_name>
+        <joint_name>finger2_joint</joint_name>
+        <joint_name>finger3_joint</joint_name>
+        <topic>/joint_states</topic>
+        <update_rate>30</update_rate>
     </plugin>
 
-    <!-- 订阅 JointTrajectory 话题，运动学置位这 4 个关节 -->
-    <plugin name="arm_joint_pose_trajectory" filename="libgazebo_ros_joint_pose_trajectory.so">
-      <ros>
-        <namespace></namespace>
-        <remapping>~/set_joint_trajectory:=/set_joint_trajectory</remapping>
-      </ros>
-      <update_rate>50</update_rate>
+    <!-- 传感器系统 -->
+    <plugin
+        filename="gz-sim-sensors-system"
+        name="gz::sim::systems::Sensors">
+        <render_engine>ogre2</render_engine>
     </plugin>
+
+    <!-- 场景广播器 -->
+    <plugin filename="gz-sim-scene-broadcaster-system"
+             name="gz::sim::systems::SceneBroadcaster"/>
+
+    <!-- 升降平台位置控制器 P=100, I=0, D=10 -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+             name="gz::sim::systems::JointPositionController">
+        <joint_name>platform_joint</joint_name>
+        <use_force_commands>false</use_force_commands>
+        <p_gain>100</p_gain>
+        <i_gain>0</i_gain>
+        <d_gain>10</d_gain>
+        <cmd_topic>/model/vehicle_blue/joint/platform_joint/0/cmd_pos</cmd_topic>
+    </plugin>
+
+    <!-- 手臂旋转位置控制器 P=100, I=0, D=10 -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+             name="gz::sim::systems::JointPositionController">
+        <joint_name>arm_rot_joint</joint_name>
+        <use_force_commands>false</use_force_commands>
+        <p_gain>100</p_gain>
+        <i_gain>0</i_gain>
+        <d_gain>10</d_gain>
+        <cmd_topic>/model/vehicle_blue/joint/arm_rot_joint/0/cmd_pos</cmd_topic>
+    </plugin>
+
+    <!-- 大臂俯仰位置控制器 P=150, I=0, D=15 -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+             name="gz::sim::systems::JointPositionController">
+        <joint_name>arm_upper_pitch_joint</joint_name>
+        <use_force_commands>false</use_force_commands>
+        <p_gain>150</p_gain>
+        <i_gain>0</i_gain>
+        <d_gain>15</d_gain>
+        <cmd_topic>/model/vehicle_blue/joint/arm_upper_pitch_joint/0/cmd_pos</cmd_topic>
+    </plugin>
+
+    <!-- 前臂伸缩位置控制器 P=50, I=0, D=5 -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+             name="gz::sim::systems::JointPositionController">
+        <joint_name>arm_forearm_extend_joint</joint_name>
+        <use_force_commands>false</use_force_commands>
+        <p_gain>50</p_gain>
+        <i_gain>0</i_gain>
+        <d_gain>5</d_gain>
+        <cmd_topic>/model/vehicle_blue/joint/arm_forearm_extend_joint/0/cmd_pos</cmd_topic>
+    </plugin>
+
+    <!-- 腕部旋转位置控制器 P=50, I=0, D=5 -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+             name="gz::sim::systems::JointPositionController">
+        <joint_name>wrist_rotate_joint</joint_name>
+        <use_force_commands>false</use_force_commands>
+        <p_gain>50</p_gain>
+        <i_gain>0</i_gain>
+        <d_gain>5</d_gain>
+        <cmd_topic>/model/vehicle_blue/joint/wrist_rotate_joint/0/cmd_pos</cmd_topic>
+    </plugin>
+
+    <!-- 手指1位置控制器 P=30, I=0, D=3 -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+             name="gz::sim::systems::JointPositionController">
+        <joint_name>finger1_joint</joint_name>
+        <use_force_commands>false</use_force_commands>
+        <p_gain>30</p_gain>
+        <i_gain>0</i_gain>
+        <d_gain>3</d_gain>
+        <cmd_topic>/model/vehicle_blue/joint/finger1_joint/0/cmd_pos</cmd_topic>
+    </plugin>
+
+    <!-- 手指2位置控制器 P=30, I=0, D=3 -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+             name="gz::sim::systems::JointPositionController">
+        <joint_name>finger2_joint</joint_name>
+        <use_force_commands>false</use_force_commands>
+        <p_gain>30</p_gain>
+        <i_gain>0</i_gain>
+        <d_gain>3</d_gain>
+        <cmd_topic>/model/vehicle_blue/joint/finger2_joint/0/cmd_pos</cmd_topic>
+    </plugin>
+
+    <!-- 手指3位置控制器 P=30, I=0, D=3 -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+             name="gz::sim::systems::JointPositionController">
+        <joint_name>finger3_joint</joint_name>
+        <use_force_commands>false</use_force_commands>
+        <p_gain>30</p_gain>
+        <i_gain>0</i_gain>
+        <d_gain>3</d_gain>
+        <cmd_topic>/model/vehicle_blue/joint/finger3_joint/0/cmd_pos</cmd_topic>
+    </plugin>
+
+    <!-- 力/力矩传感器系统插件 -->
+    <plugin filename='libgz-sim8-forcetorque-system.so'
+             name='gz::sim::systems::ForceTorque'></plugin>
 
   </model>
 

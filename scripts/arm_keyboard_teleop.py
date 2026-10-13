@@ -1,37 +1,38 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
-Keyboard teleop for the 4-DOF suction arm of myfirst_robot.
+果园采摘机械臂键盘控制脚本（完全按照PDF第5章 orchard_robot 关节定义）
 
-How it works
-------------
-The Gazebo plugin `libgazebo_ros_joint_pose_trajectory.so` subscribes to
-`/set_joint_trajectory` (trajectory_msgs/JointTrajectory) and moves the joints
-KINEMATICALLY via Joint::SetPosition. Two consequences this node deals with:
+关节列表（与PDF SDF一致）：
+  platform_joint         - 升降平台 (prismatic Z轴, 范围 0 ~ 0.8m)
+  arm_rot_joint          - 手臂旋转 (revolute Z轴, 范围 -pi ~ pi)
+  arm_upper_pitch_joint  - 大臂俯仰 (revolute Y轴, 范围 -0.785 ~ 1.57)
+  arm_forearm_extend_joint - 前臂伸缩 (prismatic X轴, 范围 0 ~ 0.3m)
+  wrist_rotate_joint     - 腕部旋转 (revolute X轴, 范围 -1.57 ~ 1.57)
+  finger1_joint          - 手指1/右手指 (revolute Y轴, 范围 -0.6 ~ 0.6)
+  finger2_joint          - 手指2/左手指 (revolute Y轴, 范围 -0.6 ~ 0.6)
+  finger3_joint          - 手指3/上手指 (revolute Y轴, 范围 -0.6 ~ 0.6)
 
-  1. header.frame_id MUST be "world", otherwise the plugin logs
-     "Plugin needs a reference link [] as frame_id, aborting." and does nothing.
-  2. The plugin does NOT hold a pose: once a trajectory finishes it stops
-     calling SetPosition and gravity drags the arm down. So we REPUBLISH the
-     current target at a fixed rate (default 20 Hz) to keep the arm where you
-     put it.
+控制话题格式（Gazebo Harmonic / gz-sim JointPositionController）:
+  /model/vehicle_blue/joint/{joint_name}/0/cmd_pos
 
-Keys
-----
-  W / S   : shoulder up / down     (joint2_shoulder_pitch)
-  A / D   : base yaw left / right  (joint1_base_yaw)
-  Q / E   : elbow up / down        (joint3_elbow_pitch)
-  R / F   : wrist up / down        (joint4_wrist_pitch)
-  SPACE   : go to home pose (all zeros)
-  [ / ]   : decrease / increase step size
-  X       : quit
-  Ctrl+C  : quit
+键盘映射：
+  ┌─────────┬──────────┬──────────┬──────────┐
+  │   O/P   │    W     │    R/F   │    U/J   │
+  │ 手指3开合│  大臂俯仰 │  升降平台 │  手指1   │
+  │ (上)    │  上/下    │  上/下    │  (右)    │
+  ├─────────┼──────────┼──────────┼──────────┤
+  │    A    │    S D   │    T/G   │    I/K   │
+  │ 手臂旋转│          │  前臂伸缩 │  手指2   │
+  │ 左/右   │  (备用)  │  伸/缩   │  (左)    │
+  ├─────────┼──────────┼──────────┼──────────┤
+  │         │    Q  E  │          │  SPACE   │
+  │         │  腕部旋转 │          │  归零位  │
+  │         │  左/右   │          │  X:退出  │
+  └─────────┴──────────┴──────────┴──────────┘
 
-Run (on the VM, in a REAL terminal — it needs a TTY for raw keyboard input):
-  python3 <path>/scripts/arm_keyboard_teleop.py
-e.g.
-  python3 ~/ros2_myfirstrobot/src/myfirst_robot/scripts/arm_keyboard_teleop.py
-or, after `colcon build`:
-  python3 ~/ros2_myfirstrobot/install/myfirst_robot/share/myfirst_robot/scripts/arm_keyboard_teleop.py
+运行：
+  ros2 run myfirst_robot arm_keyboard_teleop.py
 """
 
 import select
@@ -41,80 +42,96 @@ import tty
 
 import rclpy
 from rclpy.node import Node
-from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
-from builtin_interfaces.msg import Duration
+from std_msgs.msg import Float64
 
-# Joint order must match the `positions` order below and the SDF joint names.
+# ======================== 关节配置（按PDF第5章精确定义）========================
 JOINTS = [
-    "joint1_base_yaw",
-    "joint2_shoulder_pitch",
-    "joint3_elbow_pitch",
-    "joint4_wrist_pitch",
+    "platform_joint",
+    "arm_rot_joint",
+    "arm_upper_pitch_joint",
+    "arm_forearm_extend_joint",
+    "wrist_rotate_joint",
+    "finger1_joint",
+    "finger2_joint",
+    "finger3_joint",
 ]
-JOINTS_SHORT = ["yaw", "shldr", "elbow", "wrist"]
+JOINTS_SHORT = ["lift", "rot", "shldr", "fore", "wrist", "fin1", "fin2", "fin3"]
 
-# (lower, upper) in radians, same as the SDF joint limits.
+# (lower, upper) — 与PDF SDF joint limit完全一致
 LIMITS = [
-    (-1.5708, 1.5708),  # joint1 yaw ±90°
-    (-1.5, 1.5),  # joint2 shoulder ±1.5rad
-    (-1.2, 1.2),  # joint3 elbow ±1.2rad
-    (-1.0, 1.0),  # joint4 wrist ±1.0rad
+    (0.0, 0.8),           # platform_joint: 0 ~ 0.8 m
+    (-3.14, 3.14),        # arm_rot_joint: -pi ~ pi rad
+    (-0.785, 1.57),       # arm_upper_pitch_joint: -45deg ~ 90deg
+    (0.0, 0.3),           # arm_forearm_extend_joint: 0 ~ 0.3 m
+    (-1.57, 1.57),        # wrist_rotate_joint: -90deg ~ 90deg
+    (-0.6, 0.6),          # finger1_joint: -0.6 ~ 0.6 rad
+    (-0.6, 0.6),          # finger2_joint: -0.6 ~ 0.6 rad
+    (-0.6, 0.6),          # finger3_joint: -0.6 ~ 0.6 rad
 ]
 
-HOME = [0.0, 0.0, 0.0, 0.0]
+HOME = [0.0] * len(JOINTS)
 
-# key -> (joint_index, direction)
-KEYMAP = {
-    "w": (1, +1),
-    "s": (1, -1),  # shoulder
-    "a": (0, +1),
-    "d": (0, -1),  # base yaw
-    "q": (2, +1),
-    "e": (2, -1),  # elbow
-    "r": (3, +1),
-    "f": (3, -1),  # wrist
-}
+# 每个关节的cmd_pos topic（gz-sim JointPositionController格式）
+CMD_TOPICS = [
+    "/model/vehicle_blue/joint/platform_joint/0/cmd_pos",
+    "/model/vehicle_blue/joint/arm_rot_joint/0/cmd_pos",
+    "/model/vehicle_blue/joint/arm_upper_pitch_joint/0/cmd_pos",
+    "/model/vehicle_blue/joint/arm_forearm_extend_joint/0/cmd_pos",
+    "/model/vehicle_blue/joint/wrist_rotate_joint/0/cmd_pos",
+    "/model/vehicle_blue/joint/finger1_joint/0/cmd_pos",
+    "/model/vehicle_blue/joint/finger2_joint/0/cmd_pos",
+    "/model/vehicle_blue/joint/finger3_joint/0/cmd_pos",
+]
 
 STEP_DEFAULT = 0.02
-STEP_MIN = 0.01
+STEP_MIN = 0.005
 STEP_MAX = 0.50
 PUB_HZ = 50.0
 
 HELP = """
-================= ARM KEYBOARD TELEOP =================
-  W / S   : shoulder up / down     (joint2_shoulder_pitch)
-  A / D   : base yaw left / right  (joint1_base_yaw)
-  Q / E   : elbow up / down        (joint3_elbow_pitch)
-  R / F   : wrist up / down        (joint4_wrist_pitch)
+================= ORCHARD ARM KEYBOARD TELEOP (PDF v5) ================
+  W / S   : shoulder up / down         (arm_upper_pitch_joint)
+  A / D   : arm rotate left / right    (arm_rot_joint)
+  Q / E   : wrist rotate left / right  (wrist_rotate_joint)
+  R / F   : lift platform up / down    (platform_joint)
+  T / G   : forearm extend / retract   (arm_forearm_extend_joint)
+  U / J   : finger1( right ) open/close (finger1_joint)
+  I / K   : finger2( left  ) open/close (finger2_joint)
+  O / P   : finger3( top   ) open/close (finger3_joint)
   SPACE   : home pose (all zeros)
   [ / ]   : step -  / step +
   X       : quit     (Ctrl+C also quits)
   NOTE    : hold a key to move continuously (terminal key repeat)
-=======================================================
-"""
+===================================================================="""
 
 
 class ArmKeyboardTeleop(Node):
+    """机械臂键盘控制节点 - PDF orchard_robot 关节版 (gz-sim)"""
+
     def __init__(self):
         super().__init__("arm_keyboard_teleop")
-        self.pub = self.create_publisher(JointTrajectory, "/set_joint_trajectory", 10)
+
+        # 为每个关节创建独立的Float64发布器（gz-sim JointPositionController）
+        self.pubs = []
+        for topic in CMD_TOPICS:
+            self.pubs.append(self.create_publisher(Float64, topic, 10))
+
         self.target = list(HOME)
         self.step = STEP_DEFAULT
+        # 50Hz定时发布，保持关节位置
         self.timer = self.create_timer(1.0 / PUB_HZ, self.publish_cmd)
 
     def publish_cmd(self):
-        msg = JointTrajectory()
-        msg.header.frame_id = "world"  # MUST: else plugin aborts
-        msg.joint_names = JOINTS
-        pt = JointTrajectoryPoint()
-        pt.positions = [float(v) for v in self.target]
-        pt.time_from_start = Duration(sec=0, nanosec=0)
-        msg.points = [pt]
-        self.pub.publish(msg)
+        """50Hz发布各关节位置到gz-sim cmd_pos话题"""
+        for i, pub in enumerate(self.pubs):
+            msg = Float64()
+            msg.data = float(self.target[i])
+            pub.publish(msg)
 
     def apply_key(self, ch):
-        """Update the target joint angles from a single keypress."""
+        """根据按键更新目标关节位置"""
         key = ch.lower() if ch.isalpha() else ch
+
         if key in KEYMAP:
             j, sign = KEYMAP[key]
             lo, hi = LIMITS[j]
@@ -127,8 +144,30 @@ class ArmKeyboardTeleop(Node):
             self.step = min(STEP_MAX, self.step + 0.01)
 
     def status_line(self):
-        parts = ["%s=%+.2f" % (JOINTS_SHORT[i], self.target[i]) for i in range(4)]
-        return "step=%.2f | %s" % (self.step, "  ".join(parts))
+        """生成状态行"""
+        parts = ["%s=%+.3f" % (JOINTS_SHORT[i], self.target[i]) for i in range(len(JOINTS))]
+        return "step=%.3f | %s" % (self.step, "  ".join(parts))
+
+
+# 按键 -> (关节索引, 方向)
+KEYMAP = {
+    "w": (2, +1),
+    "s": (2, -1),    # arm_upper_pitch_joint: 大臂俯仰
+    "a": (1, +1),
+    "d": (1, -1),    # arm_rot_joint: 手臂旋转
+    "q": (4, +1),
+    "e": (4, -1),    # wrist_rotate_joint: 腕部旋转
+    "r": (0, +1),
+    "f": (0, -1),    # platform_joint: 升降平台
+    "t": (3, +1),
+    "g": (3, -1),    # arm_forearm_extend_joint: 前臂伸缩
+    "u": (5, +1),
+    "j": (5, -1),    # finger1_joint: 手指1(右)
+    "i": (6, +1),
+    "k": (6, -1),    # finger2_joint: 手指2(左)
+    "o": (7, +1),
+    "p": (7, -1),    # finger3_joint: 手指3(上)
+}
 
 
 def main():
@@ -149,7 +188,7 @@ def main():
     sys.stdout.flush()
 
     try:
-        tty.setcbreak(fd)  # single-key, no echo; ISIG kept
+        tty.setcbreak(fd)
         while rclpy.ok():
             rclpy.spin_once(node, timeout_sec=1.0 / PUB_HZ)
             if select.select([sys.stdin], [], [], 0)[0]:
