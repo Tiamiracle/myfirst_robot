@@ -69,10 +69,18 @@
       <static>true</static>
       <link name="link">
         <collision name="collision">
-          <geometry><box><size>50 0.15 0.8</size></box></geometry>
+          <geometry>
+            <box>
+              <size>50 0.15 0.8</size>
+            </box>
+          </geometry>
         </collision>
         <visual name="visual">
-          <geometry><box><size>50 0.15 0.8</size></box></geometry>
+          <geometry>
+            <box>
+              <size>50 0.15 0.8</size>
+            </box>
+          </geometry>
           <material>
             <ambient>0.55 0.35 0.15 1</ambient>
             <diffuse>0.5 0.32 0.12 1</diffuse>
@@ -87,10 +95,18 @@
       <static>true</static>
       <link name="link">
         <collision name="collision">
-          <geometry><box><size>21 0.15 0.8</size></box></geometry>
+          <geometry>
+            <box>
+              <size>21 0.15 0.8</size>
+            </box>
+          </geometry>
         </collision>
         <visual name="visual">
-          <geometry><box><size>21 0.15 0.8</size></box></geometry>
+          <geometry>
+            <box>
+              <size>21 0.15 0.8</size>
+            </box>
+          </geometry>
           <material>
             <ambient>0.55 0.35 0.15 1</ambient>
             <diffuse>0.5 0.32 0.12 1</diffuse>
@@ -104,10 +120,18 @@
       <static>true</static>
       <link name="link">
         <collision name="collision">
-          <geometry><box><size>21 0.15 0.8</size></box></geometry>
+          <geometry>
+            <box>
+              <size>21 0.15 0.8</size>
+            </box>
+          </geometry>
         </collision>
         <visual name="visual">
-          <geometry><box><size>21 0.15 0.8</size></box></geometry>
+          <geometry>
+            <box>
+              <size>21 0.15 0.8</size>
+            </box>
+          </geometry>
           <material>
             <ambient>0.55 0.35 0.15 1</ambient>
             <diffuse>0.5 0.32 0.12 1</diffuse>
@@ -122,10 +146,18 @@
       <static>true</static>
       <link name="link">
         <collision name="collision">
-          <geometry><box><size>0.15 30 0.8</size></box></geometry>
+          <geometry>
+            <box>
+              <size>0.15 30 0.8</size>
+            </box>
+          </geometry>
         </collision>
         <visual name="visual">
-          <geometry><box><size>0.15 30 0.8</size></box></geometry>
+          <geometry>
+            <box>
+              <size>0.15 30 0.8</size>
+            </box>
+          </geometry>
           <material>
             <ambient>0.55 0.35 0.15 1</ambient>
             <diffuse>0.5 0.32 0.12 1</diffuse>
@@ -140,10 +172,18 @@
       <static>true</static>
       <link name="link">
         <collision name="collision">
-          <geometry><box><size>0.15 30 0.8</size></box></geometry>
+          <geometry>
+            <box>
+              <size>0.15 30 0.8</size>
+            </box>
+          </geometry>
         </collision>
         <visual name="visual">
-          <geometry><box><size>0.15 30 0.8</size></box></geometry>
+          <geometry>
+            <box>
+              <size>0.15 30 0.8</size>
+            </box>
+          </geometry>
           <material>
             <ambient>0.55 0.35 0.15 1</ambient>
             <diffuse>0.5 0.32 0.12 1</diffuse>
@@ -219,13 +259,13 @@
     <!-- 5. Link Attacher 插件（WorldPlugin，提供 /link_attacher_node/attach 和 /detach） -->
     <!--    注意：库文件名带 _plugin 后缀，由 gazebo_ros_link_attacher 的 CMake 生成 -->
     <!-- ============================================ -->
-    <plugin name="ros_link_attacher_plugin" filename="libgazebo_ros_link_attacher_plugin.so"/>
+    <!-- <plugin name="ros_link_attacher_plugin" filename="libgazebo_ros_link_attacher_plugin.so"/> -->
 
     <!-- ============================================ -->
     <!-- 6. 物理参数（全局） -->
     <!-- ============================================ -->
     <gravity>0 0 -9.8</gravity>
-    <physics name="default_physics" default="0" type="ode">
+    <physics name="default_physics" default="true" type="ignored">
       <max_step_size>0.001</max_step_size>
       <real_time_factor>1.0</real_time_factor>
       <ode>

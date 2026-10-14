@@ -954,7 +954,7 @@
       <p_gain>100</p_gain>
       <i_gain>0</i_gain>
       <d_gain>10</d_gain>
-      <cmd_topic>/model/vehicle_blue/joint/platform_joint/cmd_pos</cmd_topic>
+      <cmd_topic>/arm/lift_cmd</cmd_topic>
     </plugin>
 
     <!-- J2: 手臂旋转 P=100, I=0, D=10 -->
@@ -965,7 +965,7 @@
       <p_gain>100</p_gain>
       <i_gain>0</i_gain>
       <d_gain>10</d_gain>
-      <cmd_topic>/model/vehicle_blue/joint/arm_rot_joint/cmd_pos</cmd_topic>
+      <cmd_topic>/arm/rot_cmd</cmd_topic>
     </plugin>
 
     <!-- J3: 大臂俯仰 P=150, I=0, D=15 -->
@@ -976,7 +976,7 @@
       <p_gain>150</p_gain>
       <i_gain>0</i_gain>
       <d_gain>15</d_gain>
-      <cmd_topic>/model/vehicle_blue/joint/arm_upper_pitch_joint/cmd_pos</cmd_topic>
+      <cmd_topic>/arm/shoulder_cmd</cmd_topic>
     </plugin>
 
     <!-- J4: 前臂伸缩 P=50, I=0, D=5 -->
@@ -987,7 +987,7 @@
       <p_gain>50</p_gain>
       <i_gain>0</i_gain>
       <d_gain>5</d_gain>
-      <cmd_topic>/model/vehicle_blue/joint/arm_forearm_extend_joint/cmd_pos</cmd_topic>
+      <cmd_topic>/arm/forearm_cmd</cmd_topic>
     </plugin>
 
     <!-- J5: 腕部旋转 P=50, I=0, D=5 -->
@@ -998,7 +998,7 @@
       <p_gain>50</p_gain>
       <i_gain>0</i_gain>
       <d_gain>5</d_gain>
-      <cmd_topic>/model/vehicle_blue/joint/wrist_rotate_joint/cmd_pos</cmd_topic>
+      <cmd_topic>/arm/wrist_cmd</cmd_topic>
     </plugin>
 
     <!-- J6: 手指1(右) P=30, I=0, D=3 -->
@@ -1009,7 +1009,7 @@
       <p_gain>30</p_gain>
       <i_gain>0</i_gain>
       <d_gain>3</d_gain>
-      <cmd_topic>/model/vehicle_blue/joint/finger1_joint/cmd_pos</cmd_topic>
+      <cmd_topic>/arm/finger1_cmd</cmd_topic>
     </plugin>
 
     <!-- J7: 手指2(左) P=30, I=0, D=3 -->
@@ -1020,7 +1020,7 @@
       <p_gain>30</p_gain>
       <i_gain>0</i_gain>
       <d_gain>3</d_gain>
-      <cmd_topic>/model/vehicle_blue/joint/finger2_joint/cmd_pos</cmd_topic>
+      <cmd_topic>/arm/finger2_cmd</cmd_topic>
     </plugin>
 
     <!-- J8: 手指3(上) P=30, I=0, D=3 -->
@@ -1031,7 +1031,7 @@
       <p_gain>30</p_gain>
       <i_gain>0</i_gain>
       <d_gain>3</d_gain>
-      <cmd_topic>/model/vehicle_blue/joint/finger3_joint/cmd_pos</cmd_topic>
+      <cmd_topic>/arm/finger3_cmd</cmd_topic>
     </plugin>
 
   </model>

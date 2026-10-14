@@ -123,29 +123,29 @@ def generate_launch_description():
 
     bridge_args = [
         # --- 底盘控制：ROS /cmd_vel -> gz /cmd_vel ---
-        "/cmd_vel@geometry_msgs/msg/Twist]/cmd_vel",
+        "/cmd_vel@geometry_msgs/msg/Twist]ignition.msgs.Twist",
         # --- 激光雷达：gz /scan -> ROS /scan ---
-        "/scan[sensor_msgs/msg/LaserScan]@/scan",
+        "/scan[sensor_msgs/msg/LaserScan]ignition.msgs.LaserScan",
         # --- 关节状态：gz /joint_states -> ROS /joint_states ---
-        "/joint_states[sensor_msgs/msg/JointState]@/joint_states",
+        "/joint_states[sensor_msgs/msg/JointState]ignition.msgs.Model",
         # --- 力传感器：gz /finger*_force -> ROS /finger*_force ---
-        "/finger1_force[geometry_msgs/msg/WrenchStamped]@/finger1_force",
-        "/finger2_force[geometry_msgs/msg/WrenchStamped]@/finger2_force",
-        "/finger3_force[geometry_msgs/msg/WrenchStamped]@/finger3_force",
+        "/finger1_force[geometry_msgs/msg/WrenchStamped]ignition.msgs.Wrench",
+        "/finger2_force[geometry_msgs/msg/WrenchStamped]ignition.msgs.Wrench",
+        "/finger3_force[geometry_msgs/msg/WrenchStamped]ignition.msgs.Wrench",
         # --- 机械臂位置控制：ROS /arm/*_cmd -> gz /*/cmd_pos ---
-        "/arm/lift_cmd@std_msgs/msg/Float64]/model/vehicle_blue/joint/platform_joint/cmd_pos",
-        "/arm/rot_cmd@std_msgs/msg/Float64]/model/vehicle_blue/joint/arm_rot_joint/cmd_pos",
-        "/arm/shoulder_cmd@std_msgs/msg/Float64]/model/vehicle_blue/joint/arm_upper_pitch_joint/cmd_pos",
-        "/arm/forearm_cmd@std_msgs/msg/Float64]/model/vehicle_blue/joint/arm_forearm_extend_joint/cmd_pos",
-        "/arm/wrist_cmd@std_msgs/msg/Float64]/model/vehicle_blue/joint/wrist_rotate_joint/cmd_pos",
-        "/arm/finger1_cmd@std_msgs/msg/Float64]/model/vehicle_blue/joint/finger1_joint/cmd_pos",
-        "/arm/finger2_cmd@std_msgs/msg/Float64]/model/vehicle_blue/joint/finger2_joint/cmd_pos",
-        "/arm/finger3_cmd@std_msgs/msg/Float64]/model/vehicle_blue/joint/finger3_joint/cmd_pos",
+        "/arm/lift_cmd@std_msgs/msg/Float64]ignition.msgs.Double",
+        "/arm/rot_cmd@std_msgs/msg/Float64]ignition.msgs.Double",
+        "/arm/shoulder_cmd@std_msgs/msg/Float64]ignition.msgs.Double",
+        "/arm/forearm_cmd@std_msgs/msg/Float64]ignition.msgs.Double",
+        "/arm/wrist_cmd@std_msgs/msg/Float64]ignition.msgs.Double",
+        "/arm/finger1_cmd@std_msgs/msg/Float64]ignition.msgs.Double",
+        "/arm/finger2_cmd@std_msgs/msg/Float64]ignition.msgs.Double",
+        "/arm/finger3_cmd@std_msgs/msg/Float64]ignition.msgs.Double",
         # --- 里程计：gz /odom -> ROS /odom ---
-        "/odom[nav_msgs/msg/Odometry]@/odom",
+        "/odom[nav_msgs/msg/Odometry]ignition.msgs.Odometry",
         # --- TF树：gz /world/pose -> ROS /tf (scene broadcaster) ---
-        "/tf@tf2_msgs/msg/TFMessage]@/world/pose",
-        "/tf_static@tf2_msgs/msg/TFMessage]@/world/pose_static",
+        "/tf[tf2_msgs/msg/TFMessage]ignition.msgs.Pose_V",
+        "/tf_static[tf2_msgs/msg/TFMessage]ignition.msgs.Pose_V",
     ]
 
     parameter_bridge = Node(
