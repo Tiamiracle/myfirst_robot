@@ -947,91 +947,91 @@
     <!-- ========== 8个机械臂关节位置控制器（JointPositionController） ========== -->
 
     <!-- J1: 升降平台 P=100, I=0, D=10 -->
-    <plugin filename="ignition-gazebo-joint-position-controller-system"
-      name="ignition::gazebo::systems::JointPositionController">
+    <plugin filename="gz-sim-joint-position-controller-system"
+      name="gz::sim::systems::JointPositionController">
       <joint_name>platform_joint</joint_name>
       <use_force_commands>false</use_force_commands>
       <p_gain>100</p_gain>
       <i_gain>0</i_gain>
       <d_gain>10</d_gain>
-      <cmd_topic>/arm/lift_cmd</cmd_topic>
+      <cmd_topic>/model/vehicle_blue/joint/platform_joint/0/cmd_pos</cmd_topic>
     </plugin>
 
     <!-- J2: 手臂旋转 P=100, I=0, D=10 -->
-    <plugin filename="ignition-gazebo-joint-position-controller-system"
-      name="ignition::gazebo::systems::JointPositionController">
+    <plugin filename="gz-sim-joint-position-controller-system"
+      name="gz::sim::systems::JointPositionController">
       <joint_name>arm_rot_joint</joint_name>
       <use_force_commands>false</use_force_commands>
       <p_gain>100</p_gain>
       <i_gain>0</i_gain>
       <d_gain>10</d_gain>
-      <cmd_topic>/arm/rot_cmd</cmd_topic>
+      <cmd_topic>/model/vehicle_blue/joint/arm_rot_joint/0/cmd_pos</cmd_topic>
     </plugin>
 
     <!-- J3: 大臂俯仰 P=150, I=0, D=15 -->
-    <plugin filename="ignition-gazebo-joint-position-controller-system"
-      name="ignition::gazebo::systems::JointPositionController">
+    <plugin filename="gz-sim-joint-position-controller-system"
+      name="gz::sim::systems::JointPositionController">
       <joint_name>arm_upper_pitch_joint</joint_name>
       <use_force_commands>false</use_force_commands>
       <p_gain>150</p_gain>
       <i_gain>0</i_gain>
       <d_gain>15</d_gain>
-      <cmd_topic>/arm/shoulder_cmd</cmd_topic>
+      <cmd_topic>/model/vehicle_blue/joint/arm_upper_pitch_joint/0/cmd_pos</cmd_topic>
     </plugin>
 
     <!-- J4: 前臂伸缩 P=50, I=0, D=5 -->
-    <plugin filename="ignition-gazebo-joint-position-controller-system"
-      name="ignition::gazebo::systems::JointPositionController">
+    <plugin filename="gz-sim-joint-position-controller-system"
+      name="gz::sim::systems::JointPositionController">
       <joint_name>arm_forearm_extend_joint</joint_name>
       <use_force_commands>false</use_force_commands>
       <p_gain>50</p_gain>
       <i_gain>0</i_gain>
       <d_gain>5</d_gain>
-      <cmd_topic>/arm/forearm_cmd</cmd_topic>
+      <cmd_topic>/model/vehicle_blue/joint/arm_forearm_extend_joint/0/cmd_pos</cmd_topic>
     </plugin>
 
     <!-- J5: 腕部旋转 P=50, I=0, D=5 -->
-    <plugin filename="ignition-gazebo-joint-position-controller-system"
-      name="ignition::gazebo::systems::JointPositionController">
+    <plugin filename="gz-sim-joint-position-controller-system"
+      name="gz::sim::systems::JointPositionController">
       <joint_name>wrist_rotate_joint</joint_name>
       <use_force_commands>false</use_force_commands>
       <p_gain>50</p_gain>
       <i_gain>0</i_gain>
       <d_gain>5</d_gain>
-      <cmd_topic>/arm/wrist_cmd</cmd_topic>
+      <cmd_topic>/model/vehicle_blue/joint/wrist_rotate_joint/0/cmd_pos</cmd_topic>
     </plugin>
 
     <!-- J6: 手指1(右) P=30, I=0, D=3 -->
-    <plugin filename="ignition-gazebo-joint-position-controller-system"
-      name="ignition::gazebo::systems::JointPositionController">
+    <plugin filename="gz-sim-joint-position-controller-system"
+      name="gz::sim::systems::JointPositionController">
       <joint_name>finger1_joint</joint_name>
       <use_force_commands>false</use_force_commands>
       <p_gain>30</p_gain>
       <i_gain>0</i_gain>
       <d_gain>3</d_gain>
-      <cmd_topic>/arm/finger1_cmd</cmd_topic>
+      <cmd_topic>/model/vehicle_blue/joint/finger1_joint/0/cmd_pos</cmd_topic>
     </plugin>
 
     <!-- J7: 手指2(左) P=30, I=0, D=3 -->
-    <plugin filename="ignition-gazebo-joint-position-controller-system"
-      name="ignition::gazebo::systems::JointPositionController">
+    <plugin filename="gz-sim-joint-position-controller-system"
+      name="gz::sim::systems::JointPositionController">
       <joint_name>finger2_joint</joint_name>
       <use_force_commands>false</use_force_commands>
       <p_gain>30</p_gain>
       <i_gain>0</i_gain>
       <d_gain>3</d_gain>
-      <cmd_topic>/arm/finger2_cmd</cmd_topic>
+      <cmd_topic>/model/vehicle_blue/joint/finger2_joint/0/cmd_pos</cmd_topic>
     </plugin>
 
     <!-- J8: 手指3(上) P=30, I=0, D=3 -->
-    <plugin filename="ignition-gazebo-joint-position-controller-system"
-      name="ignition::gazebo::systems::JointPositionController">
+    <plugin filename="gz-sim-joint-position-controller-system"
+      name="gz::sim::systems::JointPositionController">
       <joint_name>finger3_joint</joint_name>
       <use_force_commands>false</use_force_commands>
       <p_gain>30</p_gain>
       <i_gain>0</i_gain>
       <d_gain>3</d_gain>
-      <cmd_topic>/arm/finger3_cmd</cmd_topic>
+      <cmd_topic>/model/vehicle_blue/joint/finger3_joint/0/cmd_pos</cmd_topic>
     </plugin>
 
   </model>
