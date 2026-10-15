@@ -146,7 +146,12 @@ def generate_launch_description():
         # --- TF树 (修正了方括号) ---
         "/tf@tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V",
         "/tf_static@tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V",
-        # --- Fortress entity lifecycle services used by FruitManager ---
+    ]
+
+    # Entity service discovery happens only when parameter_bridge starts.
+    # Keep these separate so Gazebo's UserCommands system has time to advertise
+    # its services before this bridge process is created.
+    entity_service_bridge_args = [
         "/world/orchard_world/create@ros_gz_interfaces/srv/SpawnEntity",
         "/world/orchard_world/remove@ros_gz_interfaces/srv/DeleteEntity",
         "/world/orchard_world/set_pose@ros_gz_interfaces/srv/SetEntityPose",
@@ -158,6 +163,22 @@ def generate_launch_description():
         arguments=bridge_args,
         output="screen",
         parameters=[{"use_sim_time": use_sim_time}],
+    )
+
+    entity_service_bridge = Node(
+        package="ros_gz_bridge",
+        executable="parameter_bridge",
+        name="orchard_entity_service_bridge",
+        arguments=entity_service_bridge_args,
+        output="screen",
+        parameters=[{"use_sim_time": use_sim_time}],
+    )
+
+    # Gazebo and the UserCommands world system are ready after the robot spawn
+    # delay.  Starting later avoids a one-time service-discovery race.
+    delayed_entity_service_bridge = TimerAction(
+        period=6.0,
+        actions=[entity_service_bridge],
     )
 
     # ========== 5. RViz ==========
@@ -181,6 +202,7 @@ def generate_launch_description():
             robot_state_pub,
             delayed_spawn,
             parameter_bridge,
+            delayed_entity_service_bridge,
             rviz_cmd,
         ]
     )
