@@ -11,9 +11,9 @@
       mobile base and arm behaviour.
     -->
     <plugin filename="ignition-gazebo-user-commands-system"
-            name="ignition::gazebo::systems::UserCommands"/>
+      name="ignition::gazebo::systems::UserCommands" />
     <plugin filename="ignition-gazebo-scene-broadcaster-system"
-            name="ignition::gazebo::systems::SceneBroadcaster"/>
+      name="ignition::gazebo::systems::SceneBroadcaster" />
 
     <!-- ============================================ -->
     <!-- 1. 地面（草地） -->
