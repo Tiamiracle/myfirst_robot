@@ -73,8 +73,8 @@ class FruitManager(Node):
         self._last_wait_log = 0.0
 
         self.get_logger().info(
-            "fruit_manager ready: %d fruit templates; waiting for Fortress services",
-            len(self._fruits),
+            f"fruit_manager ready: {len(self._fruits)} fruit templates; "
+            "waiting for Fortress services"
         )
         self._spawn_timer = self.create_timer(0.5, self._spawn_when_ready)
 
@@ -120,7 +120,7 @@ class FruitManager(Node):
         if not self._spawn_client.service_is_ready() or not self._delete_client.service_is_ready():
             if time.monotonic() - self._last_wait_log >= 5.0:
                 self.get_logger().info(
-                    "waiting for %s and %s", CREATE_SERVICE, REMOVE_SERVICE
+                    f"waiting for {CREATE_SERVICE} and {REMOVE_SERVICE}"
                 )
                 self._last_wait_log = time.monotonic()
             return
@@ -132,7 +132,9 @@ class FruitManager(Node):
 
     def _spawn_next_static(self) -> None:
         if not self._spawn_queue:
-            self.get_logger().info("all %d apples are ready on the trees", len(self._fruits))
+            self.get_logger().info(
+                f"all {len(self._fruits)} apples are ready on the trees"
+            )
             return
 
         fruit = self._spawn_queue.pop(0)
@@ -140,7 +142,7 @@ class FruitManager(Node):
 
     def _static_spawn_done(self, fruit: Fruit, success: bool) -> None:
         if not success:
-            self.get_logger().error("failed to create %s", fruit.name)
+            self.get_logger().error(f"failed to create {fruit.name}")
         self._spawn_next_static()
 
     def _sdf_for(self, fruit_name: str, is_static: bool) -> str:
@@ -170,11 +172,11 @@ class FruitManager(Node):
                 response = done_future.result()
                 success = response is not None and response.success
             except Exception as error:  # noqa: BLE001
-                self.get_logger().error("create %s failed: %s", fruit.name, error)
+                self.get_logger().error(f"create {fruit.name} failed: {error}")
                 success = False
             if success:
                 mode = "static/on-tree" if is_static else "dynamic/detached"
-                self.get_logger().info("created %s (%s)", fruit.name, mode)
+                self.get_logger().info(f"created {fruit.name} ({mode})")
             on_complete(fruit, success)
 
         future.add_done_callback(spawn_done)
@@ -191,7 +193,7 @@ class FruitManager(Node):
                 response = done_future.result()
                 success = response is not None and response.success
             except Exception as error:  # noqa: BLE001
-                self.get_logger().error("remove %s failed: %s", fruit_name, error)
+                self.get_logger().error(f"remove {fruit_name} failed: {error}")
                 success = False
             on_complete(success)
 
@@ -201,7 +203,7 @@ class FruitManager(Node):
         fruit_name = message.data.strip()
         fruit = self._fruits.get(fruit_name)
         if fruit is None:
-            self.get_logger().error("%s: unknown fruit '%s'", command, fruit_name)
+            self.get_logger().error(f"{command}: unknown fruit '{fruit_name}'")
         return fruit
 
     def _detach_callback(self, message: String) -> None:
@@ -210,7 +212,7 @@ class FruitManager(Node):
             return
         if fruit.state != FruitState.ON_TREE:
             self.get_logger().warning(
-                "detach: %s is %s, expected ON_TREE", fruit.name, fruit.state.value
+                f"detach: {fruit.name} is {fruit.state.value}, expected ON_TREE"
             )
             return
 
@@ -218,15 +220,19 @@ class FruitManager(Node):
         # an identical pose changes only this fruit from static to dynamic.
         def recreate_dynamic(removed: bool) -> None:
             if not removed:
-                self.get_logger().error("detach: could not remove static %s", fruit.name)
+                self.get_logger().error(f"detach: could not remove static {fruit.name}")
                 return
 
             def detached_created(created: Fruit, spawned: bool) -> None:
                 if not spawned:
-                    self.get_logger().error("detach: could not recreate dynamic %s", created.name)
+                    self.get_logger().error(
+                        f"detach: could not recreate dynamic {created.name}"
+                    )
                     return
                 created.state = FruitState.DETACHED
-                self.get_logger().info("detached %s; gravity is now active", created.name)
+                self.get_logger().info(
+                    f"detached {created.name}; gravity is now active"
+                )
 
             self._spawn_async(fruit, is_static=False, on_complete=detached_created)
 
@@ -237,14 +243,14 @@ class FruitManager(Node):
         if fruit is None:
             return
         if fruit.state == FruitState.REMOVED:
-            self.get_logger().warning("remove: %s is already removed", fruit.name)
+            self.get_logger().warning(f"remove: {fruit.name} is already removed")
             return
         def removed(success: bool) -> None:
             if not success:
-                self.get_logger().error("remove: failed to remove %s", fruit.name)
+                self.get_logger().error(f"remove: failed to remove {fruit.name}")
                 return
             fruit.state = FruitState.REMOVED
-            self.get_logger().info("removed %s", fruit.name)
+            self.get_logger().info(f"removed {fruit.name}")
 
         self._delete_async(fruit.name, removed)
 
