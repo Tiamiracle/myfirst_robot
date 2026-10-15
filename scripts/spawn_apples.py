@@ -35,11 +35,13 @@ TREES = [
     ("tree_07", 6.0, -4.0), ("tree_08", 12.0, -4.0), ("tree_09", 18.0, -4.0),
 ]
 
-# Local (x, y, z) offsets relative to each tree base.
+# Local (x, y, z) offsets relative to each tree base. The canopy centre is
+# (0, 0, 1.1625) with radius 0.4875 m.  Apple centres are placed near its
+# surface so the red fruit remains visible instead of being hidden inside it.
 APPLE_OFFSETS = [
-    (0.15, 0.1125, 1.065),
-    (-0.135, 0.165, 1.215),
-    (0.09, -0.165, 1.14),
+    (0.00, -0.51, 1.1625),
+    (-0.42, -0.26, 1.30),
+    (0.44, 0.12, 1.38),
 ]
 
 
