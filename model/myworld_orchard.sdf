@@ -2,9 +2,18 @@
 <sdf version="1.7">
   <world name="orchard_world">
 
-    <!-- Fortress entity lifecycle API: create / remove / set_pose services. -->
+    <!--
+      Declaring a world system plugin disables Gazebo Fortress' implicit
+      defaults. Keep all three required systems explicit: physics for detached
+      fruit, UserCommands for entity lifecycle, and SceneBroadcaster so the
+      GUI receives visuals for dynamically created apples.
+    -->
+    <plugin filename="ignition-gazebo-physics-system"
+            name="ignition::gazebo::systems::Physics"/>
     <plugin filename="ignition-gazebo-user-commands-system"
             name="ignition::gazebo::systems::UserCommands"/>
+    <plugin filename="ignition-gazebo-scene-broadcaster-system"
+            name="ignition::gazebo::systems::SceneBroadcaster"/>
 
     <!-- ============================================ -->
     <!-- 1. 地面（草地） -->
