@@ -146,6 +146,10 @@ def generate_launch_description():
         # --- TF树 (修正了方括号) ---
         "/tf@tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V",
         "/tf_static@tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V",
+        # --- Fortress entity lifecycle services used by FruitManager ---
+        "/world/orchard_world/create@ros_gz_interfaces/srv/SpawnEntity",
+        "/world/orchard_world/remove@ros_gz_interfaces/srv/DeleteEntity",
+        "/world/orchard_world/set_pose@ros_gz_interfaces/srv/SetEntityPose",
     ]
 
     parameter_bridge = Node(

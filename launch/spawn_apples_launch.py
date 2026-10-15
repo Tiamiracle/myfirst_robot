@@ -10,18 +10,17 @@ def generate_launch_description():
     orchard_launch = os.path.join(project_dir, 'launch', 'my_robot_orchard_launch.py')
     script_path = os.path.join(project_dir, 'scripts', 'spawn_apples.py')
 
-    # 1) Bring up the orchard: gzserver + robot + (optionally) rviz
+    # 1) Bring up the Fortress orchard, robot and ROS-GZ service bridges.
     include_orchard = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(orchard_launch),
         launch_arguments={'use_rviz': LaunchConfiguration('use_rviz', default='True')}.items(),
     )
 
-    # 2) After the world is loaded, spawn+attach apples onto tree crowns.
-    #    4s delay gives gzserver + link_attacher plugin time to advertise services.
+    # 2) Start the persistent fruit manager after UserCommands is available.
     spawn_apples = TimerAction(
-        period=4.0,
+        period=6.0,
         actions=[
-            LogInfo(msg='[spawn_apples] spawning apples onto tree crowns...'),
+            LogInfo(msg='[fruit_manager] creating static apples on tree crowns...'),
             ExecuteProcess(cmd=['python3', script_path], output='screen'),
         ],
     )

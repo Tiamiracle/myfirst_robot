@@ -74,11 +74,10 @@
     </joint>
 
     <!--
-      关键设计决策：
-      - 不设 static：苹果需要被机械臂抓取/移除
-      - 有质量和惯性：Gazebo物理引擎要求动态物体必须有
-      - 后续通过 /spawn_entity service 动态生成到树上
-      - 采摘时通过 delete entity 移除，模拟"摘走"
+      FruitManager creates this template through Fortress UserCommands.
+      It injects <static>true</static> for on-tree fruit and recreates the
+      model with <static>false</static> on detach, preserving this collision
+      and inertia data so the detached apple can fall naturally.
     -->
 
   </model>

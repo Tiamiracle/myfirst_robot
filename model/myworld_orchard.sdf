@@ -2,6 +2,10 @@
 <sdf version="1.7">
   <world name="orchard_world">
 
+    <!-- Fortress entity lifecycle API: create / remove / set_pose services. -->
+    <plugin filename="ignition-gazebo-user-commands-system"
+            name="ignition::gazebo::systems::UserCommands"/>
+
     <!-- ============================================ -->
     <!-- 1. 地面（草地） -->
     <!-- ============================================ -->
@@ -255,11 +259,7 @@
       <pose>18 -4 0 0 0 0</pose>
     </include>
 
-    <!-- ============================================ -->
-    <!-- 5. Link Attacher 插件（WorldPlugin，提供 /link_attacher_node/attach 和 /detach） -->
-    <!--    注意：库文件名带 _plugin 后缀，由 gazebo_ros_link_attacher 的 CMake 生成 -->
-    <!-- ============================================ -->
-    <!-- <plugin name="ros_link_attacher_plugin" filename="libgazebo_ros_link_attacher_plugin.so"/> -->
+    <!-- Apples are managed at runtime through the UserCommands services. -->
 
     <!-- ============================================ -->
     <!-- 6. 物理参数（全局） -->

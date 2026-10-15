@@ -1,40 +1,41 @@
 #!/usr/bin/env python3
+"""Manage orchard apples in Gazebo Fortress through ros_gz_bridge services.
+
+Initial apples are spawned as static models. Detaching removes that static
+model and recreates it dynamically at the same pose, so gravity makes it fall.
+
+Commands::
+
+  ros2 topic pub --once /fruit/detach std_msgs/msg/String "{data: apple_01}"
+  ros2 topic pub --once /fruit/remove std_msgs/msg/String "{data: apple_01}"
 """
-Batch-spawn apples onto tree crowns and ATTACH them via gazebo_ros_link_attacher.
 
-Design intent (Module 1 -> Module 3 handoff):
-  - Apples are DYNAMIC, real-physics entities (model/apple_model/model.sdf has
-    mass + inertia + gravity, NO static, NO disabled gravity).
-  - After spawning, each apple is PHYSICALLY ATTACHED to the parent tree's
-    tree_canopy link via gazebo_ros_link_attacher, so it hangs on the tree
-    with real physics instead of falling.
-  - During picking: call /link_attacher_node/detach first, then grab/remove.
-
-Service used:
-  /attach  (gazebo_ros_link_attacher/srv/Attach)
-    model_name_1 / link_name_1  -> apple (apple_body)
-    model_name_2 / link_name_2  -> tree_xx (tree_canopy)
-
-Run: python3 spawn_apples.py   (after gzserver + /spawn_entity + /attach are up)
-"""
 import os
 import time
-import rclpy
-from rclpy.node import Node
-from gazebo_msgs.srv import SpawnEntity
-from geometry_msgs.msg import Pose, Quaternion
-from gazebo_ros_link_attacher.srv import Attach
+from dataclasses import dataclass
+from enum import Enum
+from typing import Dict, Optional
 
-# Tree info: (tree_name, x, y) - tree_name must match myworld_orchard.sdf <name> tags
+import rclpy
+from geometry_msgs.msg import Pose
+from rclpy.node import Node
+from ros_gz_interfaces.msg import Entity
+from ros_gz_interfaces.srv import DeleteEntity, SpawnEntity
+from std_msgs.msg import String
+
+
+WORLD_NAME = "orchard_world"
+CREATE_SERVICE = f"/world/{WORLD_NAME}/create"
+REMOVE_SERVICE = f"/world/{WORLD_NAME}/remove"
+
+# These coordinates must stay aligned with model/myworld_orchard.sdf.
 TREES = [
-    ('tree_01', 6, 4), ('tree_02', 12, 4), ('tree_03', 18, 4),
-    ('tree_04', 9, 0), ('tree_05', 15, 0), ('tree_06', 21, 0),
-    ('tree_07', 6, -4), ('tree_08', 12, -4), ('tree_09', 18, -4),
+    ("tree_01", 6.0, 4.0), ("tree_02", 12.0, 4.0), ("tree_03", 18.0, 4.0),
+    ("tree_04", 9.0, 0.0), ("tree_05", 15.0, 0.0), ("tree_06", 21.0, 0.0),
+    ("tree_07", 6.0, -4.0), ("tree_08", 12.0, -4.0), ("tree_09", 18.0, -4.0),
 ]
 
-# Per-tree apple offsets (dx, dy, dz) relative to tree base, within crown.
-# Scaled by 0.75 together with tree_model/model.sdf so apples stay on the
-# (now smaller) canopy. Canopy center is at z=1.1625, radius 0.4875.
+# Local (x, y, z) offsets relative to each tree base.
 APPLE_OFFSETS = [
     (0.15, 0.1125, 1.065),
     (-0.135, 0.165, 1.215),
@@ -42,123 +43,223 @@ APPLE_OFFSETS = [
 ]
 
 
-class AppleSpawner(Node):
-    def __init__(self):
-        super().__init__('apple_spawner')
-        here = os.path.dirname(os.path.abspath(__file__))
-        share = os.path.dirname(here)  # share/myfirst_robot
-        apple_sdf_path = os.path.join(share, 'model', 'apple_model', 'model.sdf')
-        with open(apple_sdf_path, 'r') as f:
-            self.apple_sdf = f.read()
+class FruitState(Enum):
+    ON_TREE = "ON_TREE"
+    DETACHED = "DETACHED"
+    REMOVED = "REMOVED"
 
-        # Spawn entity client
-        self.spawn_cli = self.create_client(SpawnEntity, '/spawn_entity')
-        # Correct service type from gazebo_ros_link_attacher
-        self.attach_cli = self.create_client(Attach, '/attach')
 
-        self.get_logger().info('apple_spawner started; target: %d apples'
-                               % (len(TREES) * len(APPLE_OFFSETS)))
+@dataclass
+class Fruit:
+    name: str
+    tree_name: str
+    pose: Pose
+    state: FruitState = FruitState.ON_TREE
 
-    def wait_services(self, timeout=30.0):
-        """Wait for BOTH /spawn_entity and /attach."""
-        start = time.time()
-        spawn_ok = False
-        attach_ok = False
-        while not (spawn_ok and attach_ok):
-            if time.time() - start > timeout:
-                self.get_logger().error('Services not ready after %.1fs, abort'
-                                       % timeout)
-                return False
-            if not spawn_ok:
-                if self.spawn_cli.wait_for_service(timeout_sec=0.5):
-                    spawn_ok = True
-                    self.get_logger().info('/spawn_entity ready')
-                else:
-                    self.get_logger().info('waiting for /spawn_entity ...')
-            if not attach_ok:
-                if self.attach_cli.wait_for_service(timeout_sec=0.5):
-                    attach_ok = True
-                    self.get_logger().info('/attach ready')
-                else:
-                    self.get_logger().info('waiting for /attach ...')
-        return True
 
-    def spawn_all(self):
-        if not self.wait_services():
-            return
+class FruitManager(Node):
+    """Creates, detaches, and removes orchard apples."""
 
-        idx = 1
-        attached = 0
-        for (tree_name, tx, ty) in TREES:
-            for (dx, dy, dz) in APPLE_OFFSETS:
-                name = 'apple_%02d' % idx
-                x = float(tx + dx)
-                y = float(ty + dy)
-                z = float(dz)
+    def __init__(self) -> None:
+        super().__init__("fruit_manager")
+        self._apple_sdf = self._read_apple_sdf()
+        self._fruits = self._build_fruit_table()
 
-                # === Step 1: spawn apple model (unique name) ===
-                sdf = self.apple_sdf.replace(
-                    '<model name="apple">', '<model name="%s">' % name, 1)
-                req = SpawnEntity.Request()
-                req.name = name
-                req.xml = sdf
-                req.robot_namespace = ''
-                req.initial_pose = Pose()
-                req.initial_pose.position.x = x
-                req.initial_pose.position.y = y
-                req.initial_pose.position.z = z
-                req.initial_pose.orientation = Quaternion(x=0.0, y=0.0, z=0.0, w=1.0)
-                req.reference_frame = 'world'
-                try:
-                    fut = self.spawn_cli.call_async(req)
-                    rclpy.spin_until_future_complete(self, fut, timeout_sec=5.0)
-                    if fut.result() is None or not fut.result().success:
-                        self.get_logger().error('spawn %s failed: %s'
-                                               % (name, getattr(fut.result(), 'status_message', 'no result')))
-                        idx += 1
-                        continue
-                except Exception as e:  # noqa: BLE001
-                    self.get_logger().error('spawn %s error: %s' % (name, e))
-                    idx += 1
-                    continue
-
-                # Give Gazebo a tick to register the new model before attaching
-                time.sleep(0.15)
-
-                # === Step 2: physically attach apple to tree canopy ===
-                areq = Attach.Request()
-                areq.model_name_1 = name
-                areq.link_name_1 = 'apple_body'
-                areq.model_name_2 = tree_name
-                areq.link_name_2 = 'tree_canopy'
-                try:
-                    fut2 = self.attach_cli.call_async(areq)
-                    rclpy.spin_until_future_complete(self, fut2, timeout_sec=5.0)
-                    if fut2.result() is not None and fut2.result().ok:
-                        attached += 1
-                        self.get_logger().info(
-                            'OK %s attached to %s @ (%.2f, %.2f, %.2f)'
-                            % (name, tree_name, x, y, z))
-                    else:
-                        self.get_logger().warn('attach %s failed (service ok=%s)'
-                                              % (name, getattr(fut2.result(), 'ok', 'n/a')))
-                except Exception as e:  # noqa: BLE001
-                    self.get_logger().warn('attach %s error: %s' % (name, e))
-
-                idx += 1
+        self._spawn_client = self.create_client(SpawnEntity, CREATE_SERVICE)
+        self._delete_client = self.create_client(DeleteEntity, REMOVE_SERVICE)
+        self.create_subscription(String, "/fruit/detach", self._detach_callback, 10)
+        self.create_subscription(String, "/fruit/remove", self._remove_callback, 10)
+        self._spawn_queue = []
+        self._last_wait_log = 0.0
 
         self.get_logger().info(
-            '=== Done: %d/%d apples spawned AND attached ==='
-            % (attached, len(TREES) * len(APPLE_OFFSETS)))
+            "fruit_manager ready: %d fruit templates; waiting for Fortress services",
+            len(self._fruits),
+        )
+        self._spawn_timer = self.create_timer(0.5, self._spawn_when_ready)
+
+    def _read_apple_sdf(self) -> str:
+        # Installed location: share/myfirst_robot/scripts. The fallback supports
+        # running directly from this source checkout.
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        candidates = [
+            os.path.join(os.path.dirname(script_dir), "model", "apple_model", "model.sdf"),
+            os.path.join(script_dir, "..", "model", "apple_model", "model.sdf"),
+        ]
+        for path in candidates:
+            path = os.path.abspath(path)
+            if os.path.isfile(path):
+                with open(path, "r", encoding="utf-8") as sdf_file:
+                    return sdf_file.read()
+        raise FileNotFoundError("Cannot find model/apple_model/model.sdf")
+
+    @staticmethod
+    def _make_pose(x: float, y: float, z: float) -> Pose:
+        pose = Pose()
+        pose.position.x = x
+        pose.position.y = y
+        pose.position.z = z
+        pose.orientation.w = 1.0
+        return pose
+
+    def _build_fruit_table(self) -> Dict[str, Fruit]:
+        fruits: Dict[str, Fruit] = {}
+        index = 1
+        for tree_name, tree_x, tree_y in TREES:
+            for offset_x, offset_y, offset_z in APPLE_OFFSETS:
+                name = f"apple_{index:02d}"
+                fruits[name] = Fruit(
+                    name=name,
+                    tree_name=tree_name,
+                    pose=self._make_pose(tree_x + offset_x, tree_y + offset_y, offset_z),
+                )
+                index += 1
+        return fruits
+
+    def _spawn_when_ready(self) -> None:
+        if not self._spawn_client.service_is_ready() or not self._delete_client.service_is_ready():
+            if time.monotonic() - self._last_wait_log >= 5.0:
+                self.get_logger().info(
+                    "waiting for %s and %s", CREATE_SERVICE, REMOVE_SERVICE
+                )
+                self._last_wait_log = time.monotonic()
+            return
+
+        self._spawn_timer.cancel()
+        self._spawn_queue = list(self._fruits.values())
+        self.get_logger().info("Fortress entity services are ready; creating apples")
+        self._spawn_next_static()
+
+    def _spawn_next_static(self) -> None:
+        if not self._spawn_queue:
+            self.get_logger().info("all %d apples are ready on the trees", len(self._fruits))
+            return
+
+        fruit = self._spawn_queue.pop(0)
+        self._spawn_async(fruit, is_static=True, on_complete=self._static_spawn_done)
+
+    def _static_spawn_done(self, fruit: Fruit, success: bool) -> None:
+        if not success:
+            self.get_logger().error("failed to create %s", fruit.name)
+        self._spawn_next_static()
+
+    def _sdf_for(self, fruit_name: str, is_static: bool) -> str:
+        """Return an SDF model with a unique name and the requested physics."""
+        sdf = self._apple_sdf.replace(
+            '<model name="apple">', f'<model name="{fruit_name}">', 1
+        )
+        static_tag = "true" if is_static else "false"
+        return sdf.replace(
+            f'<model name="{fruit_name}">',
+            f'<model name="{fruit_name}">\n    <static>{static_tag}</static>',
+            1,
+        )
+
+    def _spawn_async(self, fruit: Fruit, is_static: bool, on_complete) -> None:
+        request = SpawnEntity.Request()
+        request.entity_factory.name = fruit.name
+        request.entity_factory.allow_renaming = False
+        request.entity_factory.sdf = self._sdf_for(fruit.name, is_static)
+        request.entity_factory.pose = fruit.pose
+        request.entity_factory.relative_to = "world"
+
+        future = self._spawn_client.call_async(request)
+
+        def spawn_done(done_future) -> None:
+            try:
+                response = done_future.result()
+                success = response is not None and response.success
+            except Exception as error:  # noqa: BLE001
+                self.get_logger().error("create %s failed: %s", fruit.name, error)
+                success = False
+            if success:
+                mode = "static/on-tree" if is_static else "dynamic/detached"
+                self.get_logger().info("created %s (%s)", fruit.name, mode)
+            on_complete(fruit, success)
+
+        future.add_done_callback(spawn_done)
+
+    def _delete_async(self, fruit_name: str, on_complete) -> None:
+        request = DeleteEntity.Request()
+        request.entity.name = fruit_name
+        request.entity.type = Entity.MODEL
+
+        future = self._delete_client.call_async(request)
+
+        def delete_done(done_future) -> None:
+            try:
+                response = done_future.result()
+                success = response is not None and response.success
+            except Exception as error:  # noqa: BLE001
+                self.get_logger().error("remove %s failed: %s", fruit_name, error)
+                success = False
+            on_complete(success)
+
+        future.add_done_callback(delete_done)
+
+    def _lookup_command_fruit(self, message: String, command: str) -> Optional[Fruit]:
+        fruit_name = message.data.strip()
+        fruit = self._fruits.get(fruit_name)
+        if fruit is None:
+            self.get_logger().error("%s: unknown fruit '%s'", command, fruit_name)
+        return fruit
+
+    def _detach_callback(self, message: String) -> None:
+        fruit = self._lookup_command_fruit(message, "detach")
+        if fruit is None:
+            return
+        if fruit.state != FruitState.ON_TREE:
+            self.get_logger().warning(
+                "detach: %s is %s, expected ON_TREE", fruit.name, fruit.state.value
+            )
+            return
+
+        # Fortress has no generic runtime attach/detach service. Recreating at
+        # an identical pose changes only this fruit from static to dynamic.
+        def recreate_dynamic(removed: bool) -> None:
+            if not removed:
+                self.get_logger().error("detach: could not remove static %s", fruit.name)
+                return
+
+            def detached_created(created: Fruit, spawned: bool) -> None:
+                if not spawned:
+                    self.get_logger().error("detach: could not recreate dynamic %s", created.name)
+                    return
+                created.state = FruitState.DETACHED
+                self.get_logger().info("detached %s; gravity is now active", created.name)
+
+            self._spawn_async(fruit, is_static=False, on_complete=detached_created)
+
+        self._delete_async(fruit.name, recreate_dynamic)
+
+    def _remove_callback(self, message: String) -> None:
+        fruit = self._lookup_command_fruit(message, "remove")
+        if fruit is None:
+            return
+        if fruit.state == FruitState.REMOVED:
+            self.get_logger().warning("remove: %s is already removed", fruit.name)
+            return
+        def removed(success: bool) -> None:
+            if not success:
+                self.get_logger().error("remove: failed to remove %s", fruit.name)
+                return
+            fruit.state = FruitState.REMOVED
+            self.get_logger().info("removed %s", fruit.name)
+
+        self._delete_async(fruit.name, removed)
 
 
-def main(args=None):
+def main(args=None) -> None:
     rclpy.init(args=args)
-    node = AppleSpawner()
-    node.spawn_all()
-    node.destroy_node()
-    rclpy.shutdown()
+    node = FruitManager()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
