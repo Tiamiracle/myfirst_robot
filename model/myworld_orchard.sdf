@@ -4,12 +4,12 @@
 
     <!--
       Declaring a world system plugin disables Gazebo Fortress' implicit
-      defaults. Keep all three required systems explicit: physics for detached
-      fruit, UserCommands for entity lifecycle, and SceneBroadcaster so the
-      GUI receives visuals for dynamically created apples.
+      defaults. Keep UserCommands for entity lifecycle and SceneBroadcaster so
+      the GUI receives visuals for dynamically created apples. Do not add a
+      world Physics system here: this project currently relies on its existing
+      robot physics configuration, and a world-level replacement changes the
+      mobile base and arm behaviour.
     -->
-    <plugin filename="ignition-gazebo-physics-system"
-            name="ignition::gazebo::systems::Physics"/>
     <plugin filename="ignition-gazebo-user-commands-system"
             name="ignition::gazebo::systems::UserCommands"/>
     <plugin filename="ignition-gazebo-scene-broadcaster-system"
