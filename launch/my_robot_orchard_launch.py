@@ -32,18 +32,16 @@ def generate_launch_description():
     # ==================== 声明参数 ====================
     use_sim_time = LaunchConfiguration("use_sim_time", default="True")
     use_rviz = LaunchConfiguration("use_rviz", default="True")
-    rviz_config_file = LaunchConfiguration(
-        "rviz_config_file",
-        default=os.path.join(bringup_dir, "rviz", "nav2_default_view.rviz"),
-    )
+    default_rviz_config = os.path.join(project_dir, "config", "orchard_camera.rviz")
+    rviz_config_file = LaunchConfiguration("rviz_config_file", default=default_rviz_config)
 
     declare_use_sim_time = DeclareLaunchArgument(
         "use_sim_time", default_value="True", description="Use simulation clock"
     )
     declare_rviz_config = DeclareLaunchArgument(
         "rviz_config_file",
-        default_value=os.path.join(bringup_dir, "rviz", "nav2_default_view.rviz"),
-        description="RViz config file path",
+        default_value=default_rviz_config,
+        description="RViz config file path (defaults to RGB-D camera view)",
     )
     declare_use_rviz = DeclareLaunchArgument(
         "use_rviz", default_value="True", description="Whether to start RViz"
@@ -126,6 +124,11 @@ def generate_launch_description():
         "/cmd_vel@geometry_msgs/msg/Twist]ignition.msgs.Twist",
         # --- 激光雷达：gz /scan -> ROS /scan (修正了方括号) ---
         "/scan@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan",
+        # --- RGB-D 相机：Gazebo -> ROS 2 ---
+        "/camera/color/image_raw@sensor_msgs/msg/Image[ignition.msgs.Image",
+        "/camera/depth/image_raw@sensor_msgs/msg/Image[ignition.msgs.Image",
+        "/camera/color/camera_info@sensor_msgs/msg/CameraInfo[ignition.msgs.CameraInfo",
+        "/camera/depth/camera_info@sensor_msgs/msg/CameraInfo[ignition.msgs.CameraInfo",
         # --- 关节状态：gz /joint_states -> ROS /joint_states (修正了方括号) ---
         "/joint_states@sensor_msgs/msg/JointState[ignition.msgs.Model",
         # --- 力传感器 (修正了方括号) ---

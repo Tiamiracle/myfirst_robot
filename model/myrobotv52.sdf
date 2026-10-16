@@ -610,6 +610,76 @@
       </inertial>
     </link>
 
+    <!--
+      末端 RGB-D 相机。相机固定在夹爪前方，光轴沿 camera_link 的 +X 方向，
+      以便机械臂靠近果实时获得近距离观测。RGB 与深度使用独立的 Fortress
+      传感器，分别发布 Image 和 CameraInfo，供 ros_gz_bridge 转为 ROS 2 话题。
+    -->
+    <link name="camera_link">
+      <visual name="camera_housing">
+        <geometry>
+          <box>
+            <size>0.06 0.09 0.05</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.03 0.03 0.03 1</ambient>
+          <diffuse>0.03 0.03 0.03 1</diffuse>
+        </material>
+      </visual>
+      <inertial>
+        <mass>0.08</mass>
+        <inertia>
+          <ixx>0.0001</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.0001</iyy>
+          <iyz>0</iyz>
+          <izz>0.0001</izz>
+        </inertia>
+      </inertial>
+
+      <sensor name="rgb_camera" type="camera">
+        <always_on>true</always_on>
+        <visualize>false</visualize>
+        <update_rate>15</update_rate>
+        <topic>/camera/color/image_raw</topic>
+        <gz_frame_id>camera_link</gz_frame_id>
+        <camera>
+          <horizontal_fov>1.22173</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.10</near>
+            <far>8.0</far>
+          </clip>
+        </camera>
+      </sensor>
+
+      <sensor name="depth_camera" type="depth_camera">
+        <always_on>true</always_on>
+        <visualize>false</visualize>
+        <update_rate>15</update_rate>
+        <topic>/camera/depth/image_raw</topic>
+        <gz_frame_id>camera_link</gz_frame_id>
+        <camera>
+          <horizontal_fov>1.22173</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+            <format>R_FLOAT32</format>
+          </image>
+          <clip>
+            <near>0.10</near>
+            <far>8.0</far>
+          </clip>
+        </camera>
+      </sensor>
+    </link>
+
     <!-- ========== 9. 手指1 (右侧手指) ========= -->
     <link name="finger_1">
       <pose>0.22 0.04 0.293 0 0 0</pose>
@@ -818,6 +888,12 @@
       <parent>arm_wrist_rot</parent>
       <child>gripper_base</child>
       <pose>0.06 0 0 -3.1415926 0 -3.1415926</pose>
+    </joint>
+
+    <joint name="camera_fixed_joint" type="fixed">
+      <parent>gripper_base</parent>
+      <child>camera_link</child>
+      <pose>0.13 0 0 0 0 0</pose>
     </joint>
 
     <!-- 手指1关节 (revolute, Y轴, 带力传感器) -->

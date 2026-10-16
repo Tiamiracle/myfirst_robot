@@ -29,6 +29,7 @@ setup(
             'model/apple_model/model.sdf',
             'model/apple_model/model.config',
         ]),
+        ('share/' + package_name + '/config', glob('config/*.rviz')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,

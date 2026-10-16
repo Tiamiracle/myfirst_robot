@@ -460,6 +460,29 @@
     <origin xyz="0.06 0 0" rpy="-3.1415926 0 -3.1415926" />
   </joint>
 
+  <!-- End-effector RGB-D camera.  The Gazebo sensors are attached to this
+       frame; camera_optical_frame below provides the standard ROS optical TF. -->
+  <link name="camera_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry><box size="0.06 0.09 0.05" /></geometry>
+      <material name="camera_black"><color rgba="0.03 0.03 0.03 1" /></material>
+    </visual>
+  </link>
+
+  <joint name="camera_fixed_joint" type="fixed">
+    <parent link="gripper_base" />
+    <child link="camera_link" />
+    <origin xyz="0.13 0 0" rpy="0 0 0" />
+  </joint>
+
+  <link name="camera_optical_frame" />
+  <joint name="camera_optical_joint" type="fixed">
+    <parent link="camera_link" />
+    <child link="camera_optical_frame" />
+    <origin xyz="0 0 0" rpy="-1.57079632679 0 -1.57079632679" />
+  </joint>
+
   <!-- 手指1关节 (revolute, Y轴, -0.6~0.6) -->
   <joint name="finger1_joint" type="revolute">
     <parent link="gripper_base" />
