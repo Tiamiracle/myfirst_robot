@@ -894,7 +894,7 @@
     <joint name="camera_fixed_joint" type="fixed">
       <parent>gripper_base</parent>
       <child>camera_link</child>
-      <pose>0.13 0 0 0 0 0</pose>
+      <pose>0.15 0 0.03 0 -0.2 0</pose>
     </joint>
 
     <!-- 手指1关节 (revolute, Y轴, 带力传感器) -->
