@@ -32,6 +32,7 @@ def generate_launch_description():
     # ==================== 声明参数 ====================
     use_sim_time = LaunchConfiguration("use_sim_time", default="True")
     use_rviz = LaunchConfiguration("use_rviz", default="True")
+    start_detector = LaunchConfiguration("start_detector", default="False")
     default_rviz_config = os.path.join(project_dir, "config", "orchard_camera.rviz")
     rviz_config_file = LaunchConfiguration("rviz_config_file", default=default_rviz_config)
 
@@ -45,6 +46,10 @@ def generate_launch_description():
     )
     declare_use_rviz = DeclareLaunchArgument(
         "use_rviz", default_value="True", description="Whether to start RViz"
+    )
+    declare_start_detector = DeclareLaunchArgument(
+        "start_detector", default_value="False",
+        description="Whether to start the HSV apple detector",
     )
     declare_world = DeclareLaunchArgument(
         "world", default_value=world_file, description="Path to orchard world SDF"
@@ -195,17 +200,28 @@ def generate_launch_description():
         parameters=[{"use_sim_time": use_sim_time}],
     )
 
+    apple_hsv_detector = Node(
+        package="myfirst_robot",
+        executable="apple_hsv_detector",
+        name="apple_hsv_detector",
+        output="screen",
+        condition=IfCondition(start_detector),
+        parameters=[{"use_sim_time": use_sim_time}],
+    )
+
     return LaunchDescription(
         [
             declare_use_sim_time,
             declare_rviz_config,
             declare_use_rviz,
+            declare_start_detector,
             declare_world,
             gz_sim,
             robot_state_pub,
             delayed_spawn,
             parameter_bridge,
             delayed_entity_service_bridge,
+            apple_hsv_detector,
             rviz_cmd,
         ]
     )

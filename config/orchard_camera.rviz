@@ -52,6 +52,42 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Best Effort
+        Value: /apple_hsv_detector/debug_image
+      Max Value: 1
+      Median window: 5
+      Min Value: 0
+      Name: Apple Detection Debug
+      Normalize Range: true
+      Queue Size: 2
+      Transport Hint: raw
+      Unreliable: false
+    - Class: rviz_default_plugins/Image
+      Enabled: true
+      Image Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Best Effort
+        Value: /apple_hsv_detector/mask
+      Max Value: 1
+      Median window: 5
+      Min Value: 0
+      Name: Apple HSV Mask
+      Normalize Range: true
+      Queue Size: 2
+      Transport Hint: raw
+      Unreliable: false
+    - Class: rviz_default_plugins/MarkerArray
+      Enabled: true
+      Marker Topic: /apple_hsv_detector/markers
+      Name: Apple 3D Positions
+    - Class: rviz_default_plugins/Image
+      Enabled: true
+      Image Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Best Effort
         Value: /camera/depth/image_raw
       Max Value: 8
       Median window: 5

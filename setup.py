@@ -19,6 +19,7 @@ setup(
         ('share/' + package_name + '/scripts',[
             'scripts/spawn_apples.py',
             'scripts/arm_keyboard_teleop.py',
+            'scripts/apple_hsv_detector.py',
         ]),
         ('share/' + package_name + '/model', glob('model/*.sdf') + glob('model/*.urdf')),
         ('share/' + package_name + '/model/tree_model', [
@@ -45,6 +46,7 @@ setup(
     entry_points={
         'console_scripts': [
             'arm_keyboard_teleop = scripts.arm_keyboard_teleop:main',
+            'apple_hsv_detector = scripts.apple_hsv_detector:main',
         ],
     },
 )
